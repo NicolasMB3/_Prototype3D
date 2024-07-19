@@ -1,9 +1,13 @@
 import Application from '../Application.js';
+
 import Scene from "./Scene.js";
+import DeskAndStuffs from "./DeskAndStuffs.js";
+import Computer from "./Computer.js";
+
 import Monitor from "./Monitor.js";
 import EventEmitter from "../Utils/EventEmitter.js";
 
-export default class World extends EventEmitter{
+export default class World extends EventEmitter {
     constructor() {
         super();
 
@@ -13,6 +17,8 @@ export default class World extends EventEmitter{
 
         this.resources.on('ready', () => {
             this.scene = new Scene();
+            this.deskAndStuffs = new DeskAndStuffs();
+            this.computer = new Computer();
             this.monitor = new Monitor();
             this.trigger('monitorReady', [this.monitor]);
         });

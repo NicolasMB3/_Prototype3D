@@ -13,8 +13,8 @@ export default class Monitor {
         this.size = this.application.sizes;
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
 
-        this.position = new THREE.Vector3(514, 2215, -3278);
-        this.rotation = new THREE.Euler(6.25 * THREE.MathUtils.DEG2RAD, 0, 0);
+        this.position = new THREE.Vector3(835, 2970, -760);
+        this.rotation = new THREE.Euler(-4.5 * THREE.MathUtils.DEG2RAD, -3.5 * THREE.MathUtils.DEG2RAD, -0.3 * THREE.MathUtils.DEG2RAD);
 
         this.eventEmitter = new EventEmitter();
 
@@ -50,6 +50,7 @@ export default class Monitor {
         this.scene3D.add(this.object);
         this.blendingMeshMaterial(this.object);
         this.createMeshes(this.object);
+        this.createGlassLayer(this.object); // Add glass layer
     }
 
     blendingMeshMaterial(object) {
@@ -76,9 +77,9 @@ export default class Monitor {
         this.meshBlend = this.createBlendMesh(cssObject);
         this.scene.add(this.meshBlend);
 
-        const fingerprintsTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/fingerprints.jpg', 0.04, 1);
-        const shadowTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/shadow.png', 1, 2);
-        const dustTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/dust.jpg', 0.02, 3);
+        const fingerprintsTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/fingerprints.jpg', 0.14, 40.5);
+        const shadowTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/shadow.png', 1, 0.4);
+        const dustTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/dust.jpg', 0.02, 40.7);
 
         this.scene.add(fingerprintsTextureMesh);
         this.scene.add(shadowTextureMesh);
@@ -123,6 +124,38 @@ export default class Monitor {
         return textureMesh;
     }
 
+    createGlassLayer(cssObject) {
+        // Load the environment map (assuming you have an HDR or similar texture)
+        const envMapLoader = new THREE.CubeTextureLoader();
+        const envMap = envMapLoader.load([
+            './textures/environmentMap/px.jpg', './textures/environmentMap/nx.jpg',
+            './textures/environmentMap/py.jpg', './textures/environmentMap/ny.jpg',
+            './textures/environmentMap/pz.jpg', './textures/environmentMap/nz.jpg'
+        ]);
+
+        // Create the glass layer
+        const glassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
+        const glassMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.1,
+            metalness: 0.8,
+            opacity: 0.4,
+            transparent: true,
+            envMap: envMap,
+            envMapIntensity: 0.065
+        });
+        const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
+
+        glassMesh.position.copy(cssObject.position);
+        glassMesh.rotation.copy(cssObject.rotation);
+        glassMesh.scale.copy(cssObject.scale);
+
+        // Position the glass slightly in front of the screen
+        glassMesh.position.z += 40;
+
+        this.scene.add(glassMesh);
+    }
+
     initRaycaster() {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -133,7 +166,6 @@ export default class Monitor {
     }
 
     onMouseMove(event) {
-
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 

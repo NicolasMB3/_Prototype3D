@@ -22,11 +22,11 @@ export default class Camera {
 
     setInstance() {
         this.instance = new THREE.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 10, 50000);
-        this.instance.position.set(-3000, 1500, 3525);
+        this.instance.position.set(1680, 2665, 3279);
         this.scene.add(this.instance);
 
         // Set the camera to look at a specific point, e.g., the position of iframe
-        this.targetPosition = new THREE.Vector3(514, 2215, -3278); // Position of the iframe
+        this.targetPosition = new THREE.Vector3(835, 2970, -760); // Position of the iframe
         this.instance.lookAt(this.targetPosition);
 
         // Debug

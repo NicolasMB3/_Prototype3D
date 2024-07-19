@@ -17,7 +17,7 @@ export default class Scene {
         this.bakedModel = new Baking(
             environmentModel,
             environmentTexture,
-            1000
+            2000
         );
     }
 
