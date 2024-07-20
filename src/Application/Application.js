@@ -13,7 +13,7 @@ import Debug from "./Utils/Debug.js";
 let instance = null;
 
 export default class Application {
-    constructor(canvas, canvas3D) {
+    constructor(canvas, canvas3D, shader) {
 
         // Singleton
         if(instance) {
@@ -25,6 +25,7 @@ export default class Application {
 
         this.canvas = canvas;
         this.canvas3D = canvas3D;
+        this.shader = shader;
 
         this.debug = new Debug();
         this.sizes = new Sizes();

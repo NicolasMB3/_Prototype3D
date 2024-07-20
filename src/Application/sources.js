@@ -29,4 +29,14 @@ export default [
         type: 'texture',
         path: './models/Computer/computer.jpg'
     },
+    {
+        name: 'furnituresModel',
+        type: 'gltfModel',
+        path: './models/Furnitures/furnitures.glb'
+    },
+    {
+        name: 'furnituresTexture',
+        type: 'texture',
+        path: './models/Furnitures/furnitures.jpg'
+    },
 ]

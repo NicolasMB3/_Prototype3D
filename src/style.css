@@ -8,13 +8,24 @@ html, body {
     background-color: darkgrey;
 }
 
-#webgl {
+#webgl, #css3d {
     position: fixed;
     top: 0;
     left: 0;
-    outline: none;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
-
 #webgl {
     z-index: 1;
+}
+
+#shader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
 }
