@@ -5,7 +5,6 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import Application from './Application.js';
 
 import { noiseShader } from "./Shaders/NoiseShader.js";
-import { VHSShader } from "./Shaders/VHSShader.js";
 
 export default class Renderer {
     constructor() {
@@ -51,27 +50,21 @@ export default class Renderer {
         this.instance3D.domElement.style.top = '0px';
         this.canvas3D.appendChild(this.instance3D.domElement);
 
-        this.shader = new THREE.WebGLRenderer({
+        this.shaderInstance = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true
         });
-        this.shader.setSize(this.sizes.width, this.sizes.height);
-        this.shader.domElement.style.position = 'absolute';
-        this.shader.domElement.style.top = '0px';
+        this.shaderInstance.setSize(this.sizes.width, this.sizes.height);
+        this.shaderInstance.domElement.style.position = 'absolute';
+        this.shaderInstance.domElement.style.top = '0px';
 
-        this.shader.domElement.style.opacity = '0.15';
-        this.shader.domElement.style.pointerEvents = 'none';
-        this.shaderCanvas.appendChild(this.shader.domElement);
+        this.shaderInstance.domElement.style.opacity = '0.15';
+        this.shaderInstance.domElement.style.pointerEvents = 'none';
+        this.shaderCanvas.appendChild(this.shaderInstance.domElement);
     }
 
     setPostProcessing() {
-        this.composer = new EffectComposer(this.shader);
-
-        this.vhsPass = new ShaderPass(VHSShader);
-        this.vhsPass.uniforms.scanlineIntensity.value = 0.1;
-        this.vhsPass.uniforms.desaturationFactor.value = 0.1;
-        this.vhsPass.uniforms.distortionStrength.value = 0.0012;
-        this.composer.addPass(this.vhsPass);
+        this.composer = new EffectComposer(this.shaderInstance);
 
         this.noisePass = new ShaderPass(noiseShader);
         this.noisePass.uniforms.intensity.value = 0.1;
@@ -100,22 +93,17 @@ export default class Renderer {
 
         this.instance3D.setSize(this.sizes.width, this.sizes.height);
 
-        this.overlayInstance.setSize(this.sizes.width, this.sizes.height);
-        this.overlayInstance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2));
+        this.shaderInstance.setSize(this.sizes.width, this.sizes.height);
+        this.shaderInstance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2));
     }
 
     update() {
         this.application.camera.instance.updateProjectionMatrix();
 
-        const time = performance.now() * 0.001;
-        if (this.vhsPass) {
-            this.vhsPass.uniforms.time.value = time;
-            this.vhsPass.uniforms.resolution.value.set(this.sizes.width, this.sizes.height);
-        }
-
         this.instance.render(this.scene, this.camera.instance);
         this.instance3D.render(this.scene3D, this.camera.instance);
         this.composer.render();
+
         this.overlay.position.copy(this.camera.instance.position);
     }
 }
