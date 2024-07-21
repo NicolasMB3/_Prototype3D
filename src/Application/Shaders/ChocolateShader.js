@@ -23,7 +23,6 @@ export const chocolateShader = {
         uniform float uAlpha;
         varying vec2 vUv;
 
-        // Fonction de bruit améliorée
         float hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
         }
@@ -44,7 +43,6 @@ export const chocolateShader = {
                    (d - b) * u.x * u.y;
         }
 
-        // Fonction de bruit fractal pour un effet de fumée plus complexe
         float fbm(vec2 p) {
             float value = 0.0;
             float amplitude = 0.5;

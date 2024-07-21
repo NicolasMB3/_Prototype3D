@@ -19,12 +19,12 @@ export default class World extends EventEmitter {
 
         this.resources.on('ready', () => {
             this.scene = new Scene();
-            this.deskAndStuffs = new DeskAndStuffs();
             this.computer = new Computer();
+            this.deskAndStuffs = new DeskAndStuffs();
             this.furnitures = new Furnitures();
+            this.chocolate = new Chocolate();
             this.monitor = new Monitor();
             this.trigger('monitorReady', [this.monitor]);
-            this.chocolate = new Chocolate();
         });
     }
 

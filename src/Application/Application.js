@@ -85,7 +85,6 @@ export default class Application {
             }
         });
 
-        this.camera.controls.dispose();
         this.renderer.instance.dispose();
     }
 }

@@ -20,9 +20,8 @@ export const noiseShader = {
         }
         
         void main() {
-            vec2 st = vUv * vec2(10.0, 10.0); // Ajustez l'échelle du bruit
+            vec2 st = vUv * vec2(10.0, 10.0);
             vec3 color = texture2D(tDiffuse, vUv).rgb;
-            // Générer une valeur aléatoire fixe pour chaque pixel
             float noise = random(st);
             color += noise * intensity;
             gl_FragColor = vec4(color, 1.0);

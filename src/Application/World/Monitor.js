@@ -1,8 +1,9 @@
 import Application from "../Application.js";
-import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS } from "../variables.js";
 import { CSS3DObject } from "three/addons";
 import * as THREE from "three";
 import EventEmitter from '../Utils/EventEmitter.js';
+import TextEffect from '../Utils/TextEffect.js';
+import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS } from "../variables.js";
 
 export default class Monitor {
     constructor() {
@@ -16,10 +17,14 @@ export default class Monitor {
         this.position = new THREE.Vector3(835, 2970, -760);
         this.rotation = new THREE.Euler(-4.5 * THREE.MathUtils.DEG2RAD, -3.5 * THREE.MathUtils.DEG2RAD, -0.3 * THREE.MathUtils.DEG2RAD);
 
+        this.isIframeActive = false;
+        this.hasEffectStarted = false;
+
         this.eventEmitter = new EventEmitter();
 
         this.createIframe();
         this.initRaycaster();
+        this.createCursorMessage();
     }
 
     createIframe() {
@@ -32,9 +37,10 @@ export default class Monitor {
         this.iframe = document.createElement('iframe');
         this.iframe.src = URL_OS;
         this.iframe.style.width = '100%';
-        this.iframe.style.height =  '100%';
+        this.iframe.style.height = '100%';
         this.iframe.style.boxSizing = 'border-box';
         this.iframe.style.opacity = '1';
+        this.iframe.style.pointerEvents = 'none';
         this.iframe.title = 'PrototypeOS';
 
         this.container.appendChild(this.iframe);
@@ -125,7 +131,6 @@ export default class Monitor {
     }
 
     createGlassLayer(cssObject) {
-        // Load the environment map (assuming you have an HDR or similar texture)
         const envMapLoader = new THREE.CubeTextureLoader();
         const envMap = envMapLoader.load([
             './textures/environmentMap/px.jpg', './textures/environmentMap/nx.jpg',
@@ -133,7 +138,6 @@ export default class Monitor {
             './textures/environmentMap/pz.jpg', './textures/environmentMap/nz.jpg'
         ]);
 
-        // Create the glass layer
         const glassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
         const glassMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
@@ -150,7 +154,6 @@ export default class Monitor {
         glassMesh.rotation.copy(cssObject.rotation);
         glassMesh.scale.copy(cssObject.scale);
 
-        // Position the glass slightly in front of the screen
         glassMesh.position.z += 40;
 
         this.scene.add(glassMesh);
@@ -161,11 +164,15 @@ export default class Monitor {
         this.mouse = new THREE.Vector2();
 
         window.addEventListener('mousemove', (event) => {
-            this.onMouseMove(event);
+            this._updateMousePositionAndIntersects(event, 'screen:mouseover', 'screen:mouseout');
+        });
+
+        window.addEventListener('click', (event) => {
+            this._updateMousePositionAndIntersects(event, 'screen:click');
         });
     }
 
-    onMouseMove(event) {
+    _updateMousePositionAndIntersects(event, eventType, outEventType = null) {
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -174,9 +181,57 @@ export default class Monitor {
         const intersects = this.raycaster.intersectObject(this.mesh);
 
         if (intersects.length > 0) {
-            this.eventEmitter.trigger('screen:mouseover');
-        } else {
-            this.eventEmitter.trigger('screen:mouseout');
+            if (eventType === 'screen:click') {
+                this.iframe.style.pointerEvents = 'auto';
+                this.isIframeActive = true;
+                this.cursorMessage.style.display = 'none';
+            } else {
+                this.eventEmitter.trigger(eventType);
+            }
+        } else if (outEventType) {
+            this.eventEmitter.trigger(outEventType);
+            this.isIframeActive = false;
         }
+    }
+
+    createCursorMessage() {
+        this.cursorMessage = document.createElement('div');
+        this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
+        this.cursorMessage.style.position = 'absolute';
+        this.cursorMessage.classList.add('cursor-message');
+
+        document.body.style.cursor = 'pointer';
+
+        this.textEffect = new TextEffect(this.cursorMessage, {
+            updateInterval: 10,
+            effectDuration: 1500
+        });
+
+        document.body.appendChild(this.cursorMessage);
+
+        this.eventEmitter.on('screen:mouseover', () => {
+            if (!this.isIframeActive && !this.hasEffectStarted) {
+                this.cursorMessage.style.display = 'block';
+                this.textEffect.startEffect();
+                this.hasEffectStarted = true;
+                document.body.style.cursor = 'pointer';
+            }
+            window.addEventListener('mousemove', this.updateCursorMessagePosition.bind(this));
+        });
+
+        this.eventEmitter.on('screen:mouseout', () => {
+            this.cursorMessage.style.display = 'none';
+            this.iframe.style.pointerEvents = 'none';
+            document.body.style.cursor = 'default';
+            window.removeEventListener('mousemove', this.updateCursorMessagePosition.bind(this));
+            this.textEffect.stopEffect();
+
+            this.hasEffectStarted = false;
+        });
+    }
+
+    updateCursorMessagePosition(event) {
+        this.cursorMessage.style.left = event.clientX + 10 + 'px';
+        this.cursorMessage.style.top = event.clientY + 10 + 'px';
     }
 }
