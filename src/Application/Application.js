@@ -12,9 +12,13 @@ import Debug from "./Utils/Debug.js";
 
 let instance = null;
 
-export default class Application {
+import Stats from 'stats.js';
+import EventEmitter from "./Utils/EventEmitter.js";
+
+export default class Application extends EventEmitter {
     constructor(canvas, canvas3D, shader) {
 
+        super();
         // Singleton
         if(instance) {
             return instance;
@@ -26,6 +30,11 @@ export default class Application {
         this.canvas = canvas;
         this.canvas3D = canvas3D;
         this.shader = shader;
+
+        // Debug
+        this.stats = new Stats();
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.dom);
 
         this.debug = new Debug();
         this.sizes = new Sizes();
@@ -47,11 +56,11 @@ export default class Application {
     eventListenersScreen() {
         this.world.on('monitorReady', (monitor) => {
             this.monitor = monitor;
-            this.monitor.eventEmitter.on('screen:mouseover', () => {
+            this.monitor.on('screen:mouseover', () => {
                 this.canvas.style.pointerEvents = 'none';
             });
 
-            this.monitor.eventEmitter.on('screen:mouseout', () => {
+            this.monitor.on('screen:mouseout', () => {
                 this.canvas.style.pointerEvents = 'auto';
             });
         });
@@ -64,9 +73,11 @@ export default class Application {
     }
 
     update() {
+        this.stats.begin();
         this.camera.update();
         this.world.update();
         this.renderer.update();
+        this.stats.end();
     }
 
     destroy() {

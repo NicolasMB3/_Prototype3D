@@ -20,7 +20,7 @@ export default class Camera {
     }
 
     setInstance() {
-        this.instance = new THREE.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 10, 70000);
+        this.instance = new THREE.PerspectiveCamera(30, this.sizes.width / this.sizes.height, 10, 70000);
         this.instance.position.set(800, 2865, 3279);
         this.scene.add(this.instance);
 
@@ -38,24 +38,39 @@ export default class Camera {
         this.mouseStoppedDuration = 0;
         this.cameraSpeed = 4; // Units per second
         this.cameraLimit = {
-            minX: -2000,
-            maxX: 1800,
-            minY: 2100,
-            maxY: 3400,
+            minX: -0,
+            maxX: 1300,
+            minY: 2500,
+            maxY: 4000,
         };
         this.mouseOffset = new THREE.Vector2();
 
         window.addEventListener('mousemove', (event) => this.onMouseMove(event));
     }
 
+// Dans la classe Camera
     onMouseMove(event) {
+        if (this.application.monitor.isIframeActive) {
+            // Vérifiez si la souris est à l'intérieur de l'iframe
+            const iframeRect = this.application.monitor.iframe.getBoundingClientRect();
+            if (
+                event.clientX < iframeRect.left ||
+                event.clientX > iframeRect.right ||
+                event.clientY < iframeRect.top ||
+                event.clientY > iframeRect.bottom
+            ) {
+                // Si la souris est en dehors de l'iframe, ne mettez pas à jour la position de la souris
+                return;
+            }
+        }
+
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         this.lastMouseMoveTime = Date.now();
-
         this.mouseOffset.x = this.mouse.x;
         this.mouseOffset.y = this.mouse.y;
     }
+
 
     updateMouseStoppedDuration() {
         const now = Date.now();
@@ -93,7 +108,16 @@ export default class Camera {
         return value;
     }
 
+    moveToPosition(targetPosition) {
+        this.instance.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
+        this.instance.updateProjectionMatrix();
+    }
+
     update() {
+        if (!this.application.monitor || this.application.monitor.isIframeActive) {
+            return;
+        }
+
         const delta = this.application.clock.delta;
         this.updateMouseStoppedDuration();
         const { moveX, moveY } = this.calculateCameraMovement(delta);

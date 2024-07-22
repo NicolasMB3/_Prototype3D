@@ -4,8 +4,8 @@ export default class TextEffect {
         this.options = options;
         this.defaultText = this.element.innerText;
         this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-        this.updateInterval = this.options.updateInterval || 10;
-        this.effectDuration = this.options.effectDuration || 500;
+        this.updateInterval = this.options.updateInterval || 5; // Updated interval for faster effect
+        this.effectDuration = this.options.effectDuration || 300; // Updated duration for quicker effect
         this.currentEffectTime = 0;
         this.isActive = false;
     }
@@ -19,35 +19,43 @@ export default class TextEffect {
         this.textArray = Array.from(this.originalText);
         this.randomTextArray = Array(this.textArray.length).fill('').map(() => this.getRandomChar());
 
-        this.intervalId = setInterval(() => {
-            this.updateTextEffect();
-        }, this.updateInterval);
+        this.lastUpdate = performance.now();
+        this.updateTextEffect();
     }
 
     stopEffect() {
         if (!this.isActive) return;
 
-        clearInterval(this.intervalId);
         this.element.innerText = this.originalText;
         this.isActive = false;
     }
 
     updateTextEffect() {
-        if (this.currentEffectTime >= this.effectDuration) {
-            this.stopEffect();
-            return;
+        if (!this.isActive) return;
+
+        const now = performance.now();
+        const elapsed = now - this.lastUpdate;
+
+        if (elapsed > this.updateInterval) {
+            this.lastUpdate = now;
+
+            if (this.currentEffectTime >= this.effectDuration) {
+                this.stopEffect();
+                return;
+            }
+
+            this.currentEffectTime += elapsed;
+            const revealPercentage = this.currentEffectTime / this.effectDuration;
+            const revealIndex = Math.floor(revealPercentage * this.textArray.length);
+
+            for (let i = 0; i < revealIndex; i++) {
+                this.randomTextArray[i] = this.textArray[i];
+            }
+
+            this.element.innerText = this.randomTextArray.join('');
         }
 
-        this.currentEffectTime += this.updateInterval;
-
-        const revealPercentage = this.currentEffectTime / this.effectDuration;
-        const revealIndex = Math.floor(revealPercentage * this.textArray.length);
-
-        for (let i = 0; i < revealIndex; i++) {
-            this.randomTextArray[i] = this.textArray[i];
-        }
-
-        this.element.innerText = this.randomTextArray.join('');
+        requestAnimationFrame(() => this.updateTextEffect());
     }
 
     getRandomChar() {

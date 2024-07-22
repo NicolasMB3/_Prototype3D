@@ -22,7 +22,7 @@ export const noiseShader = {
         void main() {
             vec2 st = vUv * vec2(10.0, 10.0);
             vec3 color = texture2D(tDiffuse, vUv).rgb;
-            float noise = random(st);
+            float noise = random(st + fract(sin(gl_FragCoord.xy) * 43758.5453123));
             color += noise * intensity;
             gl_FragColor = vec4(color, 1.0);
         }

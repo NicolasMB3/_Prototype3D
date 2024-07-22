@@ -5,6 +5,7 @@ import DeskAndStuffs from "./DeskAndStuffs.js";
 import Computer from "./Computer.js";
 import Furnitures from "./Furnitures.js";
 import Chocolate from "./Chocolate.js";
+import StickyNotes from "./StickyNotes.js";
 
 import Monitor from "./Monitor.js";
 import EventEmitter from "../Utils/EventEmitter.js";
@@ -23,6 +24,7 @@ export default class World extends EventEmitter {
             this.deskAndStuffs = new DeskAndStuffs();
             this.furnitures = new Furnitures();
             this.chocolate = new Chocolate();
+            this.stickyNotes = new StickyNotes();
             this.monitor = new Monitor();
             this.trigger('monitorReady', [this.monitor]);
         });

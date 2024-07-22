@@ -1,47 +1,50 @@
 import Application from "../Application.js";
 import { CSS3DObject } from "three/addons";
 import * as THREE from "three";
-import EventEmitter from '../Utils/EventEmitter.js';
-import TextEffect from '../Utils/TextEffect.js';
-import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS } from "../variables.js";
+import InteractiveObject from "../Utils/InteractiveObject.js";
+import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variables.js";
 
-export default class Monitor {
+export default class Monitor extends InteractiveObject {
     constructor() {
-        this.application = new Application();
-        this.scene3D = this.application.scene3D;
-        this.scene = this.application.scene;
+        const application = new Application();
+        super(application);
 
+        this.scene3D = this.application.scene3D;
         this.size = this.application.sizes;
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
 
         this.position = new THREE.Vector3(835, 2970, -760);
-        this.rotation = new THREE.Euler(-4.5 * THREE.MathUtils.DEG2RAD, -3.5 * THREE.MathUtils.DEG2RAD, -0.3 * THREE.MathUtils.DEG2RAD);
+        this.rotation = new THREE.Euler(
+            -4.5 * THREE.MathUtils.DEG2RAD,
+            -3.5 * THREE.MathUtils.DEG2RAD,
+            -0.3 * THREE.MathUtils.DEG2RAD
+        );
 
         this.isIframeActive = false;
         this.hasEffectStarted = false;
 
-        this.eventEmitter = new EventEmitter();
+        this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
+        this.defaultMessage = "Cliquez pour accéder à l'écran";
 
         this.createIframe();
-        this.initRaycaster();
-        this.createCursorMessage();
+        this.initRaycaster([this.mesh]);
     }
 
     createIframe() {
-        this.container = document.createElement('div');
-        this.container.style.width = this.screenSize.width + 'px';
-        this.container.style.height = this.screenSize.height + 'px';
-        this.container.style.opacity = '1';
-        this.container.style.background = '#1d2e2f';
+        this.container = document.createElement("div");
+        this.container.style.width = this.screenSize.width + "px";
+        this.container.style.height = this.screenSize.height + "px";
+        this.container.style.opacity = "1";
+        this.container.style.background = "#1d2e2f";
 
-        this.iframe = document.createElement('iframe');
+        this.iframe = document.createElement("iframe");
         this.iframe.src = URL_OS;
-        this.iframe.style.width = '100%';
-        this.iframe.style.height = '100%';
-        this.iframe.style.boxSizing = 'border-box';
-        this.iframe.style.opacity = '1';
-        this.iframe.style.pointerEvents = 'none';
-        this.iframe.title = 'PrototypeOS';
+        this.iframe.style.width = "100%";
+        this.iframe.style.height = "100%";
+        this.iframe.style.boxSizing = "border-box";
+        this.iframe.style.opacity = "1";
+        this.iframe.style.pointerEvents = "none";
+        this.iframe.title = "PrototypeOS";
 
         this.container.appendChild(this.iframe);
 
@@ -56,7 +59,7 @@ export default class Monitor {
         this.scene3D.add(this.object);
         this.blendingMeshMaterial(this.object);
         this.createMeshes(this.object);
-        this.createGlassLayer(this.object); // Add glass layer
+        this.createGlassLayer(this.object);
     }
 
     blendingMeshMaterial(object) {
@@ -83,9 +86,24 @@ export default class Monitor {
         this.meshBlend = this.createBlendMesh(cssObject);
         this.scene.add(this.meshBlend);
 
-        const fingerprintsTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/fingerprints.jpg', 0.14, 40.5);
-        const shadowTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/shadow.png', 1, 0.4);
-        const dustTextureMesh = this.createTextureMesh(cssObject, './textures/monitor/dust.jpg', 0.02, 40.7);
+        const fingerprintsTextureMesh = this.createTextureMesh(
+            cssObject,
+            "./textures/monitor/fingerprints.jpg",
+            0.2,
+            40.5
+        );
+        const shadowTextureMesh = this.createTextureMesh(
+            cssObject,
+            "./textures/monitor/shadow.png",
+            1,
+            0.4
+        );
+        const dustTextureMesh = this.createTextureMesh(
+            cssObject,
+            "./textures/monitor/dust.jpg",
+            0.02,
+            40.7
+        );
 
         this.scene.add(fingerprintsTextureMesh);
         this.scene.add(shadowTextureMesh);
@@ -97,9 +115,7 @@ export default class Monitor {
             opacity: 0,
             color: new THREE.Color(0x000000),
             blending: THREE.NoBlending,
-            side: THREE.DoubleSide,
             transparent: false,
-            depthWrite: false,
         });
         const geometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
         const meshBlend = new THREE.Mesh(geometry, material);
@@ -116,7 +132,8 @@ export default class Monitor {
         const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
-            opacity: opacity
+            side: THREE.DoubleSide,
+            opacity: opacity,
         });
         const geometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
         const textureMesh = new THREE.Mesh(geometry, material);
@@ -133,20 +150,21 @@ export default class Monitor {
     createGlassLayer(cssObject) {
         const envMapLoader = new THREE.CubeTextureLoader();
         const envMap = envMapLoader.load([
-            './textures/environmentMap/px.jpg', './textures/environmentMap/nx.jpg',
-            './textures/environmentMap/py.jpg', './textures/environmentMap/ny.jpg',
-            './textures/environmentMap/pz.jpg', './textures/environmentMap/nz.jpg'
+            "./textures/environmentMap/px.jpg", "./textures/environmentMap/nx.jpg",
+            "./textures/environmentMap/py.jpg", "./textures/environmentMap/ny.jpg",
+            "./textures/environmentMap/pz.jpg", "./textures/environmentMap/nz.jpg",
         ]);
 
         const glassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
         const glassMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
-            roughness: 0.1,
-            metalness: 0.8,
-            opacity: 0.4,
+            roughness: 0.05,
+            metalness: 0.6,
+            side: THREE.DoubleSide,
+            opacity: 0.12,
             transparent: true,
             envMap: envMap,
-            envMapIntensity: 0.065
+            envMapIntensity: 0.016,
         });
         const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
 
@@ -159,79 +177,31 @@ export default class Monitor {
         this.scene.add(glassMesh);
     }
 
-    initRaycaster() {
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
-
-        window.addEventListener('mousemove', (event) => {
-            this._updateMousePositionAndIntersects(event, 'screen:mouseover', 'screen:mouseout');
-        });
-
-        window.addEventListener('click', (event) => {
-            this._updateMousePositionAndIntersects(event, 'screen:click');
-        });
+    onObjectClick(object) {
+        this.iframe.style.pointerEvents = "auto";
+        this.isIframeActive = true;
+        this.cursorMessage.style.display = "none";
+        this.textEffect.stopEffect();
+        this.isExitMessageDisplayed = false;
+        this.isObjectActive = true;
+        this.onScreenClick();
     }
 
-    _updateMousePositionAndIntersects(event, eventType, outEventType = null) {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    onScreenClick() {
+        const targetPosition = CAMERA_SETTINGS.positions[1];
+        this.application.camera.moveToPosition(targetPosition);
 
-        this.raycaster.setFromCamera(this.mouse, this.application.camera.instance);
-
-        const intersects = this.raycaster.intersectObject(this.mesh);
-
-        if (intersects.length > 0) {
-            if (eventType === 'screen:click') {
-                this.iframe.style.pointerEvents = 'auto';
-                this.isIframeActive = true;
-                this.cursorMessage.style.display = 'none';
-            } else {
-                this.eventEmitter.trigger(eventType);
-            }
-        } else if (outEventType) {
-            this.eventEmitter.trigger(outEventType);
-            this.isIframeActive = false;
-        }
+        // Mark monitor as active
+        this.isObjectActive = true;
     }
 
-    createCursorMessage() {
-        this.cursorMessage = document.createElement('div');
-        this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
-        this.cursorMessage.style.position = 'absolute';
-        this.cursorMessage.classList.add('cursor-message');
-
-        document.body.style.cursor = 'pointer';
-
-        this.textEffect = new TextEffect(this.cursorMessage, {
-            updateInterval: 10,
-            effectDuration: 1500
-        });
-
-        document.body.appendChild(this.cursorMessage);
-
-        this.eventEmitter.on('screen:mouseover', () => {
-            if (!this.isIframeActive && !this.hasEffectStarted) {
-                this.cursorMessage.style.display = 'block';
-                this.textEffect.startEffect();
-                this.hasEffectStarted = true;
-                document.body.style.cursor = 'pointer';
-            }
-            window.addEventListener('mousemove', this.updateCursorMessagePosition.bind(this));
-        });
-
-        this.eventEmitter.on('screen:mouseout', () => {
-            this.cursorMessage.style.display = 'none';
-            this.iframe.style.pointerEvents = 'none';
-            document.body.style.cursor = 'default';
-            window.removeEventListener('mousemove', this.updateCursorMessagePosition.bind(this));
-            this.textEffect.stopEffect();
-
-            this.hasEffectStarted = false;
-        });
+    onObjectExit() {
+        this.iframe.style.pointerEvents = "none";
+        this.cursorMessage.innerText = this.defaultMessage;
     }
 
-    updateCursorMessagePosition(event) {
-        this.cursorMessage.style.left = event.clientX + 10 + 'px';
-        this.cursorMessage.style.top = event.clientY + 10 + 'px';
+    onExitClick() {
+        super.onExitClick();
+        this.isIframeActive = false;
     }
 }

@@ -58,7 +58,7 @@ export default class Renderer {
         this.shaderInstance.domElement.style.position = 'absolute';
         this.shaderInstance.domElement.style.top = '0px';
 
-        this.shaderInstance.domElement.style.opacity = '0.16';
+        this.shaderInstance.domElement.style.opacity = '0.12';
         this.shaderInstance.domElement.style.pointerEvents = 'none';
         this.shaderCanvas.appendChild(this.shaderInstance.domElement);
     }
