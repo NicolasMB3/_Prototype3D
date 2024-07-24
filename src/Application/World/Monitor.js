@@ -4,8 +4,6 @@ import * as THREE from "three";
 import InteractiveObject from "../Utils/InteractiveObject.js";
 import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variables.js";
 
-import gsap from 'gsap';
-
 export default class Monitor extends InteractiveObject {
     constructor() {
         const application = new Application();
@@ -23,7 +21,6 @@ export default class Monitor extends InteractiveObject {
         );
 
         this.isIframeActive = false;
-        this.hasEffectStarted = false;
 
         this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
         this.defaultMessage = "Cliquez pour accéder à l'écran";

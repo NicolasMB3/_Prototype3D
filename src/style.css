@@ -44,7 +44,3 @@ html, body {
     color: white;
     z-index: 5;
 }
-
-#loader {
-    z-index: 10;
-}

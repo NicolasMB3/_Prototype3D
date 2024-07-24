@@ -13,7 +13,6 @@
     "vite-plugin-restart": "^0.4.1"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^23.1.2",
     "gsap": "^3.12.5",
     "lil-gui": "^0.19.2",
     "stats.js": "^0.17.0",

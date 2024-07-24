@@ -46,7 +46,6 @@ export default class Application extends EventEmitter {
         this.renderer = new Renderer(canvas, canvas3D);
         this.world = new World();
 
-        // Initialize the monitor and add event listeners after it's ready
         this.eventListenersScreen();
 
         this.sizes.on('resize', () => { this.resize(); });
@@ -64,7 +63,6 @@ export default class Application extends EventEmitter {
                 this.canvas.style.pointerEvents = 'auto';
             });
         });
-
     }
 
     resize() {
@@ -78,24 +76,5 @@ export default class Application extends EventEmitter {
         this.world.update();
         this.renderer.update();
         this.stats.end();
-    }
-
-    destroy() {
-        this.sizes.off('resize');
-        this.clock.off('tick');
-
-        this.scene.traverse(child => {
-            if(child instanceof THREE.Mesh) {
-                child.geometry.dispose();
-                for(const key in child.material) {
-                    if (child.material[key] && typeof child.material[key].dispose === 'function') {
-                        child.material[key].dispose();
-                    }
-                    child.material.dispose();
-                }
-            }
-        });
-
-        this.renderer.instance.dispose();
     }
 }

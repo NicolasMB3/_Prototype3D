@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import Application from './Application.js';
-
 import gsap from 'gsap';
+import Application from './Application.js';
 
 export default class Camera {
     constructor() {
@@ -10,7 +9,6 @@ export default class Camera {
         this.sizes = this.application.sizes;
         this.scene = this.application.scene;
         this.debug = this.application.debug;
-        this.clock = this.application.clock;
 
         // Debug
         if (this.debug.active) {
@@ -19,12 +17,10 @@ export default class Camera {
 
         this.setInstance();
         this.setControls();
-
-        this.clock.on('tick', () => this.update());
     }
 
     setInstance() {
-        this.instance = new THREE.PerspectiveCamera(33, this.sizes.width / this.sizes.height, 10, 7000);
+        this.instance = new THREE.PerspectiveCamera(35, this.sizes.width / this.sizes.height, 10, 7000);
         this.instance.position.set(800, 3055, 2910);
         this.scene.add(this.instance);
 
@@ -61,7 +57,6 @@ export default class Camera {
     }
 
     applyRotation() {
-        // Inverted rotation on X axis for correct behavior when moving up and down
         const targetRotationX = this.mouse.y * this.rotationFactor;
         const targetRotationY = -this.mouse.x * this.rotationFactor;
 
@@ -81,7 +76,7 @@ export default class Camera {
     }
 
     calculateDistanceToIframe() {
-        if (!this.application.monitor || !this.application.monitor.object) return Infinity;
+        if (!this.application.monitor || !this.application.monitor.object) return;
 
         const iframePosition = new THREE.Vector3();
         this.application.monitor.object.getWorldPosition(iframePosition);
@@ -89,18 +84,22 @@ export default class Camera {
         return this.instance.position.distanceTo(iframePosition);
     }
 
-    update() {
-        if (!this.application.monitor || this.application.monitor.isIframeActive) return;
-        this.applyRotation();
-
+    setIframeVisibility() {
         const distanceToIframe = this.calculateDistanceToIframe();
-        const visibilityThreshold = 2200;
+        const visibilityThreshold = 2300;
 
         if (distanceToIframe < visibilityThreshold) {
             this.application.monitor.setIframeVisibility(false);
         } else {
             this.application.monitor.setIframeVisibility(true);
         }
+    }
+
+    update() {
+        if (!this.application.monitor || this.application.monitor.isIframeActive) return;
+
+        this.applyRotation();
+        this.setIframeVisibility();
     }
 
     resize() {
