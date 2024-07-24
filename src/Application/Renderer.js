@@ -68,9 +68,11 @@ export default class Renderer {
 
         this.noisePass = new ShaderPass(noiseShader);
         this.noisePass.uniforms.intensity.value = 0.18;
+
         this.noisePass.renderToScreen = true;
         this.composer.addPass(this.noisePass);
     }
+
 
     setOverlay() {
         this.overlay = new THREE.Mesh(

@@ -22,8 +22,8 @@ export default class World extends EventEmitter {
             this.scene = new Scene();
             this.computer = new Computer();
             this.deskAndStuffs = new DeskAndStuffs();
-            this.furnitures = new Furnitures();
             this.chocolate = new Chocolate();
+            this.furnitures = new Furnitures();
             this.stickyNotes = new StickyNotes();
             this.monitor = new Monitor();
             this.trigger('monitorReady', [this.monitor]);
@@ -31,6 +31,8 @@ export default class World extends EventEmitter {
     }
 
     update() {
-        if (this.chocolate) this.chocolate.update();
+        if (this.chocolate) {
+            this.chocolate.update()
+        }
     }
 }

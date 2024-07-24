@@ -4,6 +4,8 @@ import * as THREE from "three";
 import InteractiveObject from "../Utils/InteractiveObject.js";
 import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variables.js";
 
+import gsap from 'gsap';
+
 export default class Monitor extends InteractiveObject {
     constructor() {
         const application = new Application();
@@ -13,7 +15,7 @@ export default class Monitor extends InteractiveObject {
         this.size = this.application.sizes;
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
 
-        this.position = new THREE.Vector3(835, 2970, -760);
+        this.position = new THREE.Vector3(835, 2967, -760);
         this.rotation = new THREE.Euler(
             -4.5 * THREE.MathUtils.DEG2RAD,
             -3.5 * THREE.MathUtils.DEG2RAD,
@@ -164,7 +166,7 @@ export default class Monitor extends InteractiveObject {
             opacity: 0.12,
             transparent: true,
             envMap: envMap,
-            envMapIntensity: 0.016,
+            envMapIntensity: 0.08,
         });
         const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
 
@@ -185,19 +187,26 @@ export default class Monitor extends InteractiveObject {
         this.isExitMessageDisplayed = false;
         this.isObjectActive = true;
         this.onScreenClick();
+
+        this.setIframeVisibility(true);
+    }
+
+    setIframeVisibility(isVisible) {
+        this.iframe.style.display = isVisible ? 'block' : 'none';
     }
 
     onScreenClick() {
         const targetPosition = CAMERA_SETTINGS.positions[1];
         this.application.camera.moveToPosition(targetPosition);
 
-        // Mark monitor as active
         this.isObjectActive = true;
     }
 
     onObjectExit() {
         this.iframe.style.pointerEvents = "none";
         this.cursorMessage.innerText = this.defaultMessage;
+
+        this.setIframeVisibility(false);
     }
 
     onExitClick() {

@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 import Application from './Application.js';
 
+import gsap from 'gsap';
+
 export default class Camera {
     constructor() {
         this.application = new Application();
 
         this.sizes = this.application.sizes;
         this.scene = this.application.scene;
-        this.canvas = this.application.canvas;
         this.debug = this.application.debug;
+        this.clock = this.application.clock;
 
         // Debug
         if (this.debug.active) {
@@ -17,11 +19,13 @@ export default class Camera {
 
         this.setInstance();
         this.setControls();
+
+        this.clock.on('tick', () => this.update());
     }
 
     setInstance() {
-        this.instance = new THREE.PerspectiveCamera(30, this.sizes.width / this.sizes.height, 10, 70000);
-        this.instance.position.set(800, 2865, 3279);
+        this.instance = new THREE.PerspectiveCamera(33, this.sizes.width / this.sizes.height, 10, 7000);
+        this.instance.position.set(800, 3055, 2910);
         this.scene.add(this.instance);
 
         // Debug
@@ -34,24 +38,13 @@ export default class Camera {
 
     setControls() {
         this.mouse = new THREE.Vector2();
-        this.lastMouseMoveTime = Date.now();
-        this.mouseStoppedDuration = 0;
-        this.cameraSpeed = 4; // Units per second
-        this.cameraLimit = {
-            minX: -0,
-            maxX: 1300,
-            minY: 2500,
-            maxY: 4000,
-        };
-        this.mouseOffset = new THREE.Vector2();
+        this.rotationFactor = 0.1;
 
         window.addEventListener('mousemove', (event) => this.onMouseMove(event));
     }
 
-// Dans la classe Camera
     onMouseMove(event) {
-        if (this.application.monitor.isIframeActive) {
-            // Vérifiez si la souris est à l'intérieur de l'iframe
+        if (this.application.monitor && this.application.monitor.isIframeActive) {
             const iframeRect = this.application.monitor.iframe.getBoundingClientRect();
             if (
                 event.clientX < iframeRect.left ||
@@ -59,69 +52,55 @@ export default class Camera {
                 event.clientY < iframeRect.top ||
                 event.clientY > iframeRect.bottom
             ) {
-                // Si la souris est en dehors de l'iframe, ne mettez pas à jour la position de la souris
                 return;
             }
         }
 
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        this.lastMouseMoveTime = Date.now();
-        this.mouseOffset.x = this.mouse.x;
-        this.mouseOffset.y = this.mouse.y;
     }
 
+    applyRotation() {
+        // Inverted rotation on X axis for correct behavior when moving up and down
+        const targetRotationX = this.mouse.y * this.rotationFactor;
+        const targetRotationY = -this.mouse.x * this.rotationFactor;
 
-    updateMouseStoppedDuration() {
-        const now = Date.now();
-        const timeSinceLastMove = now - this.lastMouseMoveTime;
-
-        this.mouseStoppedDuration = timeSinceLastMove > 100 ? Math.min(timeSinceLastMove / 1000, 1) : 0;
-    }
-
-    calculateCameraMovement(delta) {
-        const moveX = this.mouse.x * this.cameraSpeed * delta * (1 - this.mouseStoppedDuration);
-        const moveY = this.mouse.y * this.cameraSpeed * delta * (1 - this.mouseStoppedDuration);
-
-        return { moveX, moveY };
-    }
-
-    applyCameraLimits(moveX, moveY) {
-        const easingDistance = 300;
-
-        const adjustedMoveX = this.applyLimit(moveX, this.instance.position.x, this.cameraLimit.minX, this.cameraLimit.maxX, easingDistance);
-        const adjustedMoveY = this.applyLimit(moveY, this.instance.position.y, this.cameraLimit.minY, this.cameraLimit.maxY, easingDistance);
-
-        const targetX = THREE.MathUtils.lerp(this.instance.position.x, this.instance.position.x + adjustedMoveX, 0.5);
-        const targetY = THREE.MathUtils.lerp(this.instance.position.y, this.instance.position.y + adjustedMoveY, 0.5);
-
-        this.instance.position.x = Math.max(this.cameraLimit.minX, Math.min(this.cameraLimit.maxX, targetX));
-        this.instance.position.y = Math.max(this.cameraLimit.minY, Math.min(this.cameraLimit.maxY, targetY));
-    }
-
-    applyLimit(value, currentPosition, minLimit, maxLimit, easingDistance) {
-        if (currentPosition < minLimit + easingDistance && value < 0) {
-            return value * (currentPosition - minLimit) / easingDistance;
-        } else if (currentPosition > maxLimit - easingDistance && value > 0) {
-            return value * (maxLimit - currentPosition) / easingDistance;
-        }
-        return value;
+        this.instance.rotation.x = THREE.MathUtils.lerp(this.instance.rotation.x, targetRotationX, 0.1);
+        this.instance.rotation.y = THREE.MathUtils.lerp(this.instance.rotation.y, targetRotationY, 0.1);
     }
 
     moveToPosition(targetPosition) {
-        this.instance.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
-        this.instance.updateProjectionMatrix();
+        gsap.to(this.instance.position, {
+            duration: 1.5,
+            x: targetPosition.x,
+            y: targetPosition.y,
+            z: targetPosition.z,
+            onUpdate: () => this.instance.updateProjectionMatrix(),
+            ease: "power2.inOut"
+        });
+    }
+
+    calculateDistanceToIframe() {
+        if (!this.application.monitor || !this.application.monitor.object) return Infinity;
+
+        const iframePosition = new THREE.Vector3();
+        this.application.monitor.object.getWorldPosition(iframePosition);
+
+        return this.instance.position.distanceTo(iframePosition);
     }
 
     update() {
-        if (!this.application.monitor || this.application.monitor.isIframeActive) {
-            return;
-        }
+        if (!this.application.monitor || this.application.monitor.isIframeActive) return;
+        this.applyRotation();
 
-        const delta = this.application.clock.delta;
-        this.updateMouseStoppedDuration();
-        const { moveX, moveY } = this.calculateCameraMovement(delta);
-        this.applyCameraLimits(moveX, moveY);
+        const distanceToIframe = this.calculateDistanceToIframe();
+        const visibilityThreshold = 2200;
+
+        if (distanceToIframe < visibilityThreshold) {
+            this.application.monitor.setIframeVisibility(false);
+        } else {
+            this.application.monitor.setIframeVisibility(true);
+        }
     }
 
     resize() {

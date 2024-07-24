@@ -137,5 +137,4 @@ export default class InteractiveObject extends EventEmitter {
     onObjectExit() {
         this.cursorMessage.innerText = this.defaultMessage || "Action";
     }
-
 }

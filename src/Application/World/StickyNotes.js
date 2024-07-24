@@ -47,7 +47,7 @@ export default class StickyNotes extends InteractiveObject {
         const stickyNoteIndex = this.stickyNotes.indexOf(stickyNote);
         const targetPosition = CAMERA_SETTINGS.positions[stickyNoteIndex + 2];
 
-        // Définissez les limites spécifiques autour de la StickyNote
+        // Define specific boundaries around the StickyNote
         this.application.camera.cameraLimit = {
             minX: targetPosition.x - 150,
             maxX: targetPosition.x + 150,
@@ -67,11 +67,9 @@ export default class StickyNotes extends InteractiveObject {
         super.onObjectExit();
         this.isObjectActive = false;
     }
-
-    // Dans la classe StickyNotes
+    
     onExitClick() {
         super.onExitClick();
-
         this.application.camera.cameraLimit = {
             minX: -0,
             maxX: 1300,
@@ -80,5 +78,4 @@ export default class StickyNotes extends InteractiveObject {
         };
         this.isObjectActive = false;
     }
-
 }
