@@ -168,7 +168,7 @@ export default class Monitor extends InteractiveObject {
             opacity: 0.12,
             transparent: true,
             envMap: envMap,
-            envMapIntensity: 0.08,
+            envMapIntensity: 0.065,
         });
         const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
 

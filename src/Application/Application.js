@@ -15,10 +15,10 @@ let instance = null;
 
 import Stats from 'stats.js';
 import EventEmitter from "./Utils/EventEmitter.js";
+import LoadingScreen from "./LoadingScreen.js";
 
 export default class Application extends EventEmitter {
-    constructor(canvas, canvas3D, shader) {
-
+    constructor(canvas, canvas3D, shader, loadingCanvas) {
         super();
 
         if(instance) {
@@ -31,6 +31,7 @@ export default class Application extends EventEmitter {
         this.canvas = canvas;
         this.canvas3D = canvas3D;
         this.shader = shader;
+        this.loadingCanvas = loadingCanvas;
 
         // Debug
         this.stats = new Stats();
@@ -42,8 +43,12 @@ export default class Application extends EventEmitter {
         this.clock = new Clock();
         this.scene = new THREE.Scene();
         this.scene3D = new THREE.Scene();
-        this.resources = new Resources(sources);
+
         this.camera = new Camera();
+
+        this.loadingScreen = new LoadingScreen();
+        this.resources = new Resources(sources, this.loadingScreen.getLoadingManager());
+
         this.renderer = new Renderer(canvas, canvas3D);
         this.world = new World();
         this.interactiveObject = new InteractiveObject(this);
@@ -70,6 +75,7 @@ export default class Application extends EventEmitter {
     resize() {
         this.camera.resize();
         this.renderer.resize();
+        this.loadingScreen.resize();
     }
 
     update() {
@@ -78,6 +84,7 @@ export default class Application extends EventEmitter {
         this.world.update();
         this.interactiveObject.update();
         this.renderer.update();
+        this.loadingScreen.update(); // Add this line
         this.stats.end();
     }
 }

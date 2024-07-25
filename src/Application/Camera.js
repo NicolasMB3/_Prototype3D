@@ -86,7 +86,7 @@ export default class Camera {
 
     setIframeVisibility() {
         const distanceToIframe = this.calculateDistanceToIframe();
-        const visibilityThreshold = 2300;
+        const visibilityThreshold = 1700;
 
         if (distanceToIframe < visibilityThreshold) {
             this.application.monitor.setIframeVisibility(false);

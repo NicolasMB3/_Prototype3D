@@ -17,7 +17,7 @@ export default class InteractiveObject extends EventEmitter {
         this.isMouseOver = false;
         this.isObjectActive = false;
         this.isExitMessageDisplayed = false;
-        this.activeInteractiveObject = null; // Ajoutez cette ligne
+        this.activeInteractiveObject = null;
 
         this.cursorMessage = document.createElement("div");
         this.cursorMessage.style.position = "absolute";

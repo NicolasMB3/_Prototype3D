@@ -4,13 +4,15 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import EventEmitter from "./EventEmitter.js";
 
 export default class Resources extends EventEmitter {
-    constructor(sources) {
+    constructor(sources, loadingManager) {
         super();
         this.sources = sources;
 
         this.items = {};
         this.toLoad = this.sources.length;
         this.loaded = 0;
+
+        this.loadingManager = loadingManager;
 
         this.setLoaders();
         this.startLoading();
@@ -20,15 +22,15 @@ export default class Resources extends EventEmitter {
         this.loaders = {};
 
         // Create DRACOLoader instance and set the decoder path
-        const dracoLoader = new DRACOLoader();
+        const dracoLoader = new DRACOLoader(this.loadingManager);
         dracoLoader.setDecoderPath('./draco/');
 
         // Create GLTFLoader instance and set DRACOLoader
-        this.loaders.gltfLoader = new GLTFLoader();
+        this.loaders.gltfLoader = new GLTFLoader(this.loadingManager);
         this.loaders.gltfLoader.setDRACOLoader(dracoLoader);
 
-        this.loaders.textureLoader = new THREE.TextureLoader();
-        this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader();
+        this.loaders.textureLoader = new THREE.TextureLoader(this.loadingManager);
+        this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader(this.loadingManager);
     }
 
     startLoading() {
