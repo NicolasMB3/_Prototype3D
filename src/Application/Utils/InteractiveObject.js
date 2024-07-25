@@ -9,6 +9,7 @@ export default class InteractiveObject extends EventEmitter {
         this.application = application;
         this.scene = this.application.scene;
         this.camera = this.application.camera.instance;
+        this.clock = this.application.clock;
 
         this.raycaster = new THREE.Raycaster(undefined, undefined, 0, undefined);
         this.mouse = new THREE.Vector2();
@@ -16,6 +17,7 @@ export default class InteractiveObject extends EventEmitter {
         this.isMouseOver = false;
         this.isObjectActive = false;
         this.isExitMessageDisplayed = false;
+        this.activeInteractiveObject = null; // Ajoutez cette ligne
 
         this.cursorMessage = document.createElement("div");
         this.cursorMessage.style.position = "absolute";
@@ -29,16 +31,18 @@ export default class InteractiveObject extends EventEmitter {
             effectDuration: 700,
         });
 
-        // Update cursor position when the mouse moves
-        window.addEventListener(
-            "mousemove",
-            this.updateMousePositionAndIntersects.bind(this)
-        );
-        window.addEventListener(
-            "mousemove",
-            this.updateCursorMessagePosition.bind(this)
-        );
+        this.handleMouseMove = this.updateMousePositionAndIntersects.bind(this);
+        this.handleCursorMessageMove = this.updateCursorMessagePosition.bind(this);
+
+        window.addEventListener("mousemove", this.handleMouseMove);
+        window.addEventListener("mousemove", this.handleCursorMessageMove);
         window.addEventListener("click", this.handleMouseClick.bind(this));
+
+        this.interactiveObjects = [];
+
+        this.clock.on("tick", () => {
+            this.update();
+        });
     }
 
     initRaycaster(objects) {
@@ -51,9 +55,7 @@ export default class InteractiveObject extends EventEmitter {
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        const intersects = this.raycaster.intersectObjects(
-            this.interactiveObjects
-        );
+        const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
 
         if (intersects.length > 0) {
             this.onObjectMouseOver(intersects[0].object);
@@ -63,7 +65,9 @@ export default class InteractiveObject extends EventEmitter {
     }
 
     handleMouseClick() {
-        const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
+        const intersects = this.raycaster.intersectObjects(
+            this.interactiveObjects
+        );
         if (intersects.length > 0) {
             this.onObjectClick(intersects[0].object);
         } else if (this.isExitMessageDisplayed) {
@@ -71,15 +75,23 @@ export default class InteractiveObject extends EventEmitter {
         }
     }
 
-    onObjectMouseOver() {
+    onObjectMouseOver(object) {
         if (!this.isMouseOver) {
             this.isMouseOver = true;
             this.trigger("object:mouseover");
 
+            if (this.cursorMessage.innerText === "Lire la note") {
+                this.application.canvas.style.pointerEvents = "auto";
+            } else {
+                this.application.canvas.style.pointerEvents = "none";
+            }
+
+            document.body.classList.add("cursor-pointer");
+
             if (this.isExitMessageDisplayed && this.isObjectActive) {
                 this.cursorMessage.style.display = "none";
                 this.textEffect.stopEffect();
-            } else {
+            } else if (!this.activeInteractiveObject || this.activeInteractiveObject === object) {
                 this.cursorMessage.style.display = "block";
                 this.textEffect.startEffect();
             }
@@ -95,17 +107,20 @@ export default class InteractiveObject extends EventEmitter {
             this.isMouseOver = false;
             this.trigger("object:mouseout");
 
+            document.body.classList.remove("cursor-pointer");
+
             if (this.isObjectActive) {
                 this.displayExitMessage();
             } else {
                 this.cursorMessage.style.display = "none";
                 this.textEffect.stopEffect();
+                this.isExitMessageDisplayed = false;
             }
         }
     }
 
     displayExitMessage() {
-        this.cursorMessage.innerText = "Cliquer pour quitter";
+        this.cursorMessage.innerText = "Cliquez pour quitter";
         this.cursorMessage.style.display = "block";
         this.textEffect.startEffect();
         this.isExitMessageDisplayed = true;
@@ -123,6 +138,7 @@ export default class InteractiveObject extends EventEmitter {
         this.cursorMessage.style.display = "none";
         this.textEffect.stopEffect();
         this.isExitMessageDisplayed = false;
+        this.activeInteractiveObject = object;
     }
 
     onExitClick() {
@@ -132,9 +148,26 @@ export default class InteractiveObject extends EventEmitter {
         this.textEffect.stopEffect();
         this.isExitMessageDisplayed = false;
         this.onObjectExit();
+        this.activeInteractiveObject = null;
     }
 
     onObjectExit() {
         this.cursorMessage.innerText = this.defaultMessage || "Action";
+    }
+
+    update() {
+        if (this.isObjectActive && this.isIframeActive) {
+            const iframeRect = this.iframe.getBoundingClientRect();
+            const mouseX = ((this.mouse.x + 1) / 2) * window.innerWidth;
+            const mouseY = ((1 - this.mouse.y) / 2) * window.innerHeight;
+
+            if (mouseX >= iframeRect.left && mouseX <= iframeRect.right && mouseY >= iframeRect.top && mouseY <= iframeRect.bottom) {
+                this.application.canvas.style.pointerEvents = "none";
+                this.iframe.style.pointerEvents = "auto";
+            } else {
+                this.application.canvas.style.pointerEvents = "auto";
+                this.iframe.style.pointerEvents = "none";
+            }
+        }
     }
 }

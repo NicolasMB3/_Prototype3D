@@ -2,7 +2,6 @@ export default class TextEffect {
     constructor(element, options = {}) {
         this.element = element;
         this.options = options;
-        this.defaultText = this.element.innerText;
         this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
         this.updateInterval = this.options.updateInterval || 5; // Updated interval for faster effect
         this.effectDuration = this.options.effectDuration || 300; // Updated duration for quicker effect

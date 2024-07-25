@@ -9,6 +9,7 @@ import Resources from './Utils/Resources.js';
 import Renderer from './Renderer.js';
 import World from './World/World.js';
 import Debug from "./Utils/Debug.js";
+import InteractiveObject from "./Utils/InteractiveObject.js";
 
 let instance = null;
 
@@ -19,7 +20,7 @@ export default class Application extends EventEmitter {
     constructor(canvas, canvas3D, shader) {
 
         super();
-        // Singleton
+
         if(instance) {
             return instance;
         }
@@ -45,6 +46,7 @@ export default class Application extends EventEmitter {
         this.camera = new Camera();
         this.renderer = new Renderer(canvas, canvas3D);
         this.world = new World();
+        this.interactiveObject = new InteractiveObject(this);
 
         this.eventListenersScreen();
 
@@ -74,6 +76,7 @@ export default class Application extends EventEmitter {
         this.stats.begin();
         this.camera.update();
         this.world.update();
+        this.interactiveObject.update();
         this.renderer.update();
         this.stats.end();
     }

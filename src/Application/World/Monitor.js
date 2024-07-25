@@ -6,11 +6,13 @@ import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variabl
 
 export default class Monitor extends InteractiveObject {
     constructor() {
+
         const application = new Application();
         super(application);
 
         this.scene3D = this.application.scene3D;
         this.size = this.application.sizes;
+        this.clock = this.application.clock;
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
 
         this.position = new THREE.Vector3(835, 2967, -760);
@@ -26,7 +28,10 @@ export default class Monitor extends InteractiveObject {
         this.defaultMessage = "Cliquez pour accéder à l'écran";
 
         this.createIframe();
-        this.initRaycaster([this.mesh]);
+        this.createIframeNote();
+
+        this.createIframeNote();
+        this.initRaycaster([this.plane]); // Changer de this.mesh à this.plane
     }
 
     createIframe() {
@@ -177,19 +182,33 @@ export default class Monitor extends InteractiveObject {
     }
 
     onObjectClick(object) {
-        this.iframe.style.pointerEvents = "auto";
-        this.isIframeActive = true;
-        this.cursorMessage.style.display = "none";
-        this.textEffect.stopEffect();
-        this.isExitMessageDisplayed = false;
-        this.isObjectActive = true;
-        this.onScreenClick();
-
-        this.setIframeVisibility(true);
+        if (object === this.plane) {
+            this.isIframeActive = true;
+            this.cursorMessage.style.display = "none";
+            this.textEffect.stopEffect();
+            this.isExitMessageDisplayed = false;
+            this.isObjectActive = true;
+            this.onScreenClick();
+        }
     }
 
     setIframeVisibility(isVisible) {
         this.iframe.style.display = isVisible ? 'block' : 'none';
+    }
+
+    createIframeNote() {
+        const geometry = new THREE.PlaneGeometry(1050, 930);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0,
+        });
+        this.plane = new THREE.Mesh(geometry, material);
+
+        this.plane.position.set(835, 2967, -650);
+        this.plane.rotation.set(-4.5 * THREE.MathUtils.DEG2RAD, -3.5 * THREE.MathUtils.DEG2RAD, -0.3 * THREE.MathUtils.DEG2RAD);
+
+        this.scene.add(this.plane);
     }
 
     onScreenClick() {

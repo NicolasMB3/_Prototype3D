@@ -66,7 +66,7 @@ export default class Camera {
 
     moveToPosition(targetPosition) {
         gsap.to(this.instance.position, {
-            duration: 1.5,
+            duration: 1.2,
             x: targetPosition.x,
             y: targetPosition.y,
             z: targetPosition.z,

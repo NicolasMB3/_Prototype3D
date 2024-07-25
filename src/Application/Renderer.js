@@ -73,7 +73,6 @@ export default class Renderer {
         this.composer.addPass(this.noisePass);
     }
 
-
     setOverlay() {
         this.overlay = new THREE.Mesh(
             new THREE.PlaneGeometry(10000, 10000),
