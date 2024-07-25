@@ -32,7 +32,7 @@ export default class StickyNotes extends InteractiveObject {
             const material = new THREE.MeshBasicMaterial({
                 color: 0xffff00,
                 transparent: true,
-                opacity: 0.0,
+                opacity: 0,
             });
             const plane = new THREE.Mesh(geometry, material);
 

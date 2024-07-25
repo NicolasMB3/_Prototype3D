@@ -29,9 +29,9 @@ export default class Monitor extends InteractiveObject {
 
         this.createIframe();
         this.createIframeNote();
+        this.createStartButton();
 
-        this.createIframeNote();
-        this.initRaycaster([this.plane]); // Changer de this.mesh à this.plane
+        this.initRaycaster([this.plane, this.startPlane]);
     }
 
     createIframe() {
@@ -189,6 +189,10 @@ export default class Monitor extends InteractiveObject {
             this.isExitMessageDisplayed = false;
             this.isObjectActive = true;
             this.onScreenClick();
+        } else if (object === this.startPlane) {
+            this.cursorMessage.style.display = "none";
+            this.textEffect.stopEffect();
+            this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
         }
     }
 
@@ -208,7 +212,51 @@ export default class Monitor extends InteractiveObject {
         this.plane.position.set(835, 2967, -650);
         this.plane.rotation.set(-4.5 * THREE.MathUtils.DEG2RAD, -3.5 * THREE.MathUtils.DEG2RAD, -0.3 * THREE.MathUtils.DEG2RAD);
 
+        this.plane.userData = {
+            onMouseOver: () => {
+                this.cursorMessage.innerText = this.defaultMessage;
+                this.cursorMessage.style.display = "block";
+                this.textEffect.startEffect();
+            },
+            onMouseOut: () => {
+                this.cursorMessage.style.display = "none";
+                this.textEffect.stopEffect();
+            }
+        };
+
         this.scene.add(this.plane);
+    }
+
+    createStartButton() {
+        const geometry = new THREE.PlaneGeometry(200, 170);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0,
+        });
+        this.startPlane = new THREE.Mesh(geometry, material);
+
+        this.startPlane.position.set(2375, 2860, -460);
+
+        this.scene.add(this.startPlane);
+
+        this.startPlane.userData = {
+            onMouseOver: () => {
+                this.cursorMessage.innerText = "Allumer l'ordinateur";
+                this.cursorMessage.style.display = "block";
+                this.textEffect.startEffect();
+            },
+            onMouseOut: () => {
+                this.cursorMessage.innerText = this.defaultMessage;
+                this.cursorMessage.style.display = "none";
+                this.textEffect.stopEffect();
+            },
+            onClick: () => {
+                this.cursorMessage.style.display = "none";
+                this.textEffect.stopEffect();
+                this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
+            }
+        };
     }
 
     onScreenClick() {

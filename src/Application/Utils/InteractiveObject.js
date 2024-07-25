@@ -80,10 +80,8 @@ export default class InteractiveObject extends EventEmitter {
             this.isMouseOver = true;
             this.trigger("object:mouseover");
 
-            if (this.cursorMessage.innerText === "Lire la note") {
-                this.application.canvas.style.pointerEvents = "auto";
-            } else {
-                this.application.canvas.style.pointerEvents = "none";
+            if (object.userData && object.userData.onMouseOver) {
+                object.userData.onMouseOver();
             }
 
             document.body.classList.add("cursor-pointer");
@@ -108,6 +106,10 @@ export default class InteractiveObject extends EventEmitter {
             this.trigger("object:mouseout");
 
             document.body.classList.remove("cursor-pointer");
+
+            if (this.activeInteractiveObject && this.activeInteractiveObject.userData && this.activeInteractiveObject.userData.onMouseOut) {
+                this.activeInteractiveObject.userData.onMouseOut();
+            }
 
             if (this.isObjectActive) {
                 this.displayExitMessage();
