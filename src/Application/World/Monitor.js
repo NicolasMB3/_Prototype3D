@@ -14,6 +14,7 @@ export default class Monitor extends InteractiveObject {
         this.size = this.application.sizes;
         this.clock = this.application.clock;
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
+        this.scene = this.application.scene;
 
         this.position = new THREE.Vector3(835, 2967, -760);
         this.rotation = new THREE.Euler(
@@ -232,6 +233,7 @@ export default class Monitor extends InteractiveObject {
             this.isPlaneStarted = true;
         } else {
             this.iframe.contentWindow.postMessage('stopPlaneClicked', '*');
+            new Audio('./sounds/off.mp3').play().then(r => r).catch(e => e);
             this.cursorMessage.innerText = stopMessage;
             this.isPlaneStarted = false;
         }
