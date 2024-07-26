@@ -23,6 +23,10 @@ export default class Monitor extends InteractiveObject {
         );
 
         this.isIframeActive = false;
+        this.isPlaneStarted = false;
+
+        this.cooldown = false;
+        this.cooldownDuration = 6000;
 
         this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
         this.defaultMessage = "Cliquez pour accéder à l'écran";
@@ -32,6 +36,16 @@ export default class Monitor extends InteractiveObject {
         this.createStartButton();
 
         this.initRaycaster([this.plane, this.startPlane]);
+
+        window.addEventListener("message", (event) => {
+            if (event.data === 'stopPlaneClicked') {
+                this.cursorMessage.innerText = "Allumer l'ordinateur";
+                this.isPlaneStarted = false;
+            } else if (event.data === 'startPlaneClicked') {
+                this.cursorMessage.innerText = "Eteindre l'ordinateur";
+                this.isPlaneStarted = true;
+            }
+        });
     }
 
     createIframe() {
@@ -190,10 +204,39 @@ export default class Monitor extends InteractiveObject {
             this.isObjectActive = true;
             this.onScreenClick();
         } else if (object === this.startPlane) {
-            this.cursorMessage.style.display = "none";
-            this.textEffect.stopEffect();
-            this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
+            this.togglePlaneState();
         }
+    }
+
+    togglePlaneState() {
+        if (this.cooldown) {
+            return;
+        }
+
+        this.cooldown = true;
+
+        setTimeout(() => {
+            this.cooldown = false;
+            const stoppedMessage = "Allumer l'ordinateur";
+            const startedMessage = "Eteindre l'ordinateur";
+            this.cursorMessage.innerText = this.isPlaneStarted ? startedMessage : stoppedMessage;
+        }, this.cooldownDuration);
+
+        const startMessage = "En cours de démarrage...";
+        const stopMessage = "En cours d'extinction...";
+
+        if (!this.isPlaneStarted) {
+            this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
+            new Audio('./sounds/on.mp3').play().then(r => r).catch(e => e);
+            this.cursorMessage.innerText = startMessage;
+            this.isPlaneStarted = true;
+        } else {
+            this.iframe.contentWindow.postMessage('stopPlaneClicked', '*');
+            this.cursorMessage.innerText = stopMessage;
+            this.isPlaneStarted = false;
+        }
+
+        this.cursorMessage.style.display = "block";
     }
 
     setIframeVisibility(isVisible) {
@@ -242,7 +285,7 @@ export default class Monitor extends InteractiveObject {
 
         this.startPlane.userData = {
             onMouseOver: () => {
-                this.cursorMessage.innerText = "Allumer l'ordinateur";
+                this.cursorMessage.innerText = this.isPlaneStarted ? "Eteindre l'ordinateur" : "Allumer l'ordinateur";
                 this.cursorMessage.style.display = "block";
                 this.textEffect.startEffect();
             },
@@ -252,9 +295,7 @@ export default class Monitor extends InteractiveObject {
                 this.textEffect.stopEffect();
             },
             onClick: () => {
-                this.cursorMessage.style.display = "none";
-                this.textEffect.stopEffect();
-                this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
+                this.togglePlaneState();
             }
         };
     }
