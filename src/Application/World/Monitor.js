@@ -35,18 +35,9 @@ export default class Monitor extends InteractiveObject {
         this.createIframe();
         this.createIframeNote();
         this.createStartButton();
+        this.receiveMessage();
 
         this.initRaycaster([this.plane, this.startPlane]);
-
-        window.addEventListener("message", (event) => {
-            if (event.data === 'stopPlaneClicked') {
-                this.cursorMessage.innerText = "Allumer l'ordinateur";
-                this.isPlaneStarted = false;
-            } else if (event.data === 'startPlaneClicked') {
-                this.cursorMessage.innerText = "Eteindre l'ordinateur";
-                this.isPlaneStarted = true;
-            }
-        });
     }
 
     createIframe() {
@@ -64,7 +55,6 @@ export default class Monitor extends InteractiveObject {
         this.iframe.style.opacity = "1";
         this.iframe.style.pointerEvents = "none";
         this.iframe.title = "PrototypeOS";
-
         this.container.appendChild(this.iframe);
 
         this.blendingMesh(this.container);
@@ -196,6 +186,18 @@ export default class Monitor extends InteractiveObject {
         this.scene.add(glassMesh);
     }
 
+    receiveMessage() {
+        window.addEventListener("message", (event) => {
+            if (event.data === 'stopPlaneClicked') {
+                this.cursorMessage.innerText = "Allumer l'ordinateur";
+                this.isPlaneStarted = false;
+            } else if (event.data === 'startPlaneClicked') {
+                this.cursorMessage.innerText = "Eteindre l'ordinateur";
+                this.isPlaneStarted = true;
+            }
+        });
+    }
+
     onObjectClick(object) {
         if (object === this.plane) {
             this.isIframeActive = true;
@@ -305,14 +307,12 @@ export default class Monitor extends InteractiveObject {
     onScreenClick() {
         const targetPosition = CAMERA_SETTINGS.positions[1];
         this.application.camera.moveToPosition(targetPosition);
-
         this.isObjectActive = true;
     }
 
     onObjectExit() {
         this.iframe.style.pointerEvents = "none";
         this.cursorMessage.innerText = this.defaultMessage;
-
         this.setIframeVisibility(false);
     }
 
