@@ -3,6 +3,7 @@ import { CSS3DObject } from "three/addons";
 import * as THREE from "three";
 import InteractiveObject from "../Utils/InteractiveObject.js";
 import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variables.js";
+import { VideoTexture } from 'three';
 
 export default class Monitor extends InteractiveObject {
     constructor() {
@@ -113,10 +114,43 @@ export default class Monitor extends InteractiveObject {
             0.02,
             40.7
         );
+        const glitchTextureMesh = this.createVideoTextureMesh(
+            cssObject,
+            "./textures/monitor/glitch.mov",
+            0.04,
+            40.8
+        );
 
         this.scene.add(fingerprintsTextureMesh);
         this.scene.add(shadowTextureMesh);
         this.scene.add(dustTextureMesh);
+        this.scene.add(glitchTextureMesh);
+    }
+
+    createVideoTextureMesh(cssObject, videoPath, opacity, zOffset) {
+        const video = document.createElement('video');
+        video.src = videoPath;
+        video.loop = true;
+        video.muted = true;
+        video.play();
+
+        const texture = new VideoTexture(video);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            side: THREE.DoubleSide,
+            opacity: opacity,
+        });
+        const geometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
+        const videoTextureMesh = new THREE.Mesh(geometry, material);
+
+        videoTextureMesh.position.copy(cssObject.position);
+        videoTextureMesh.rotation.copy(cssObject.rotation);
+        videoTextureMesh.scale.copy(cssObject.scale);
+
+        videoTextureMesh.position.z += zOffset;
+
+        return videoTextureMesh;
     }
 
     createBlendMesh(cssObject) {

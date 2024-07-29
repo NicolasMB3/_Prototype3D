@@ -12,8 +12,8 @@ export const CAMERA_SETTINGS = {
         // Original position
         { x: 800, y: 3055, z: 2910 },
         // Position when looking at the screen
-        { x: 835, y: 2935, z: 1550 },
-        // Positions when looking at StickyNotes (add one for each note)
+        { x: 835, y: 2935, z: 1200 },
+        // Positions when looking at StickyNotes
         { x: -950, y: 3450, z: -600 }, // StickyNote 1
         { x: -1225, y: 3525, z: -600 }, // StickyNote 2
         { x: 565, y: 3990, z: -1000 }, // StickyNote 3
