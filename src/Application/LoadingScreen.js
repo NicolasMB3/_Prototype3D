@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Application from './Application.js';
-
 import gsap from 'gsap';
 
 export default class LoadingScreen {
@@ -22,6 +21,7 @@ export default class LoadingScreen {
         this.loadingScene = new THREE.Scene();
 
         this.progressBar = document.querySelector('#loadingBar');
+        this.loadingItems = document.querySelector('#loadingItems');
 
         this.setInstance();
         this.init();
@@ -36,22 +36,43 @@ export default class LoadingScreen {
             }
         );
 
-        this.renderer = new THREE.WebGLRenderer({ alpha: true });
-        this.renderer.setSize(this.sizes.width, this.sizes.height);
-        this.canvas.appendChild(this.renderer.domElement);
+        // Uncomment only if the canvas is required for loading screen visuals
+        // this.renderer = new THREE.WebGLRenderer({ alpha: true });
+        // this.renderer.setSize(this.sizes.width, this.sizes.height);
+        // this.canvas.appendChild(this.renderer.domElement);
     }
 
     loadComplete() {
-        gsap.to(this.plane.material.uniforms.uAlpha, {
-            value: 0,
-            duration: 3,
+        const cameraInstance = this.application.camera.instance;
+        const originalPosition = { x: 800, y: 3055, z: 2910 };
+
+        // Transition back to the original position
+        gsap.to(cameraInstance.position, {
+            duration: 1.2,
+            x: originalPosition.x,
+            y: originalPosition.y,
+            z: originalPosition.z,
+            ease: "power2.inOut"
+        });
+
+        // Fade out the loading screen
+        gsap.to('#loadingScreen', {
+            opacity: 0,
+            duration: 2,
+            onComplete: () => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }
         });
     }
 
     inLoad(url, itemsLoaded, itemsTotal) {
         const progress = itemsLoaded / itemsTotal;
-        this.progressBar.style.transform = `scaleX(${progress})`;
+        this.progressBar.style.width = `${progress * 100}%`;
         console.log(itemsLoaded / itemsTotal);
+
+        // Update loading items list
+        const itemName = url.split('/').pop();
+        this.loadingItems.innerHTML += `<li>${itemName} (${itemsLoaded}/${itemsTotal})</li>`;
     }
 
     getLoadingManager() {
@@ -96,10 +117,10 @@ export default class LoadingScreen {
         this.plane.geometry.dispose();
         this.plane.geometry = new THREE.PlaneGeometry(this.sizes.width, this.sizes.height);
 
-        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        // this.renderer.setSize(this.sizes.width, this.sizes.height);
     }
 
     update() {
-        this.renderer.render(this.loadingScene, this.camera);
+        // this.renderer.render(this.loadingScene, this.camera);
     }
 }

@@ -18,18 +18,24 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-T6LW8P8Q');</script>
     <!-- End Google Tag Manager -->
+    <style>
+        /* Include the CSS from above here */
+    </style>
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6LW8P8Q"
-                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <div id="webgl"></div>
-    <div id="css3d"></div>
-    <div id="shader"></div>
-    <div id="loadingScreen">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6LW8P8Q"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div id="webgl"></div>
+<div id="css3d"></div>
+<div id="shader"></div>
+<div id="loadingScreen">
+    <div id="loadingBarContainer">
         <div id="loadingBar"></div>
     </div>
-    <script type="module" src="./script.js"></script>
+    <ul id="loadingItems"></ul>
+</div>
+<script type="module" src="./script.js"></script>
 </body>
 </html>

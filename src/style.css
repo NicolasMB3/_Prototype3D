@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap');
 
 * {
     margin: 0;
@@ -7,7 +7,7 @@
 
 html, body {
     overflow: hidden;
-    background-color: darkgrey;
+    background-color: black;
 }
 
 #webgl {
@@ -55,16 +55,43 @@ html, body {
     cursor: pointer;
 }
 
-#loadingBar {
-    position: absolute;
-    top: 50%;
-    background-color: red;
-
+#loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 3px;
-    transform: scaleX(0);
-    transform-origin: top left;
-    opacity: 0;
+    height: 100%;
+    background: black;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-    z-index: 500;
+#loadingBarContainer {
+    position: relative;
+    width: 50%;
+    height: 24px; /* Adjusted for retro look */
+    background: #C0C0C0; /* Windows 95 grey */
+    border: 2px solid #FFFFFF; /* White border */
+    box-shadow: inset 1px 1px 0 #7F7F7F, inset -1px -1px 0 #000000; /* Inset shadow for 3D effect */
+    margin-bottom: 20px;
+}
+
+#loadingBar {
+    width: 0%; /* Start at 0% width */
+    height: 100%;
+    background: #000080; /* Windows 95 blue */
+    box-shadow: inset 1px 1px 0 #FFFFFF, inset -1px -1px 0 #7F7F7F; /* Inset shadow for 3D effect */
+    transition: width 0.2s; /* Smooth transition */
+}
+
+#loadingItems {
+    height: 100px;
+    overflow: overlay;
+    width: 50%;
+    list-style: none;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
 }
