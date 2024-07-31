@@ -36,6 +36,12 @@ export default class LoadingScreen {
     }
 
     loadComplete() {
+
+        document.querySelector('#loadingMessage').style.display = 'none';
+        document.querySelectorAll('.p_child').forEach((element) => {
+            element.style.display = 'block';
+        });
+
         // Function to fade out the loading screen
         const fadeOutLoadingScreen = () => {
             gsap.to(this.loadingScreenElement, {

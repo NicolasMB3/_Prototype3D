@@ -76,7 +76,7 @@ html, body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     background-image: linear-gradient(to right bottom, #131313, #1b1b1b, #232323, #2b2b2c, #343334);
     z-index: 1000;
     display: flex;
@@ -84,12 +84,12 @@ html, body {
     justify-content: space-between;
     color: #808080;
     font-family: 'PerfectDOSVGA437', 'Tahoma', sans-serif;
-    font-size: 1.8em;
-    overflow-y: auto;
-    overflow-x: hidden;
+    font-size: 1.6em;
+    overflow: hidden;
+    filter: contrast(1.5) brightness(0.8) saturate(1.2);
 }
 
-#loadingScreen::before {
+#loadingScreen::before, #loadingScreen::after {
     content: "";
     position: absolute;
     top: 0;
@@ -99,7 +99,21 @@ html, body {
     pointer-events: none;
     background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, rgba(0,0,0,0) 1px);
     background-size: 3px 3px;
-    opacity: 0.3;
+    opacity: 0.8;
+}
+
+#loadingScreen::after {
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="1" height="1" fill="rgba(255,255,255,0.02)" /%3E%3C/svg%3E');
+    animation: noise 0.2s infinite;
+}
+
+@keyframes noise {
+    0%, 100% {
+        opacity: 0.1;
+    }
+    50% {
+        opacity: 0.4;
+    }
 }
 
 #loadingScreenText {
@@ -157,10 +171,18 @@ html, body {
     color: white;
 }
 
+.p_child {
+    display: none;
+}
+
+.show-message {
+    display: flex;
+}
+
 /* Media Queries for Responsiveness */
 @media (max-width: 1200px) {
     #loadingScreen {
-        font-size: 1.6em;
+        font-size: 1.4em;
     }
 
     #loadingScreenImg {
@@ -180,7 +202,7 @@ html, body {
         width: 100%;
     }
 
-    .loadingScreenText_child {
+    #loadingScreenText .loadingScreenText_child {
         padding: 16px;
     }
 
@@ -189,7 +211,16 @@ html, body {
     }
 
     .textContent_5 {
+        margin-top: 2rem;
         column-gap: 2rem;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    .textContent_2 p {
+        height: 20px;
     }
 }
 

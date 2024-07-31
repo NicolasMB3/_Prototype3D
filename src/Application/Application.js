@@ -13,7 +13,6 @@ import InteractiveObject from "./Utils/InteractiveObject.js";
 
 let instance = null;
 
-import Stats from 'stats.js';
 import EventEmitter from "./Utils/EventEmitter.js";
 import LoadingScreen from "./LoadingScreen.js";
 
@@ -32,11 +31,6 @@ export default class Application extends EventEmitter {
         this.canvas3D = canvas3D;
         this.shader = shader;
         this.loadingCanvas = loadingCanvas;
-
-        // Debug
-        this.stats = new Stats();
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
 
         this.debug = new Debug();
         this.sizes = new Sizes();
@@ -79,12 +73,10 @@ export default class Application extends EventEmitter {
     }
 
     update() {
-        this.stats.begin();
         this.camera.update();
         this.world.update();
         this.interactiveObject.update();
         this.renderer.update();
-        this.loadingScreen.update(); // Add this line
-        this.stats.end();
+        this.loadingScreen.update();
     }
 }

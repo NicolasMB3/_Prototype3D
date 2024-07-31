@@ -20,7 +20,6 @@ export default class Camera {
     }
 
     setInstance() {
-        // Start at the transition position
         this.instance = new THREE.PerspectiveCamera(35, this.sizes.width / this.sizes.height, 10, 7000);
         this.instance.position.set(800, 3555, 2910); // Starting at transition position
         this.scene.add(this.instance);
