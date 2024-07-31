@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap');
 
+@font-face {
+    font-family: 'PerfectDOSVGA437';
+    src: url('/fonts/PerfectDOSVGA437.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -38,6 +45,15 @@ html, body {
     z-index: 3;
 }
 
+.container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    display: block;
+}
+
 .cursor-message {
     font-family: monospace;
     font-weight: 400;
@@ -61,37 +77,166 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: black;
+    background-image: linear-gradient(to right bottom, #131313, #1b1b1b, #232323, #2b2b2c, #343334);
     z-index: 1000;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    color: #808080;
+    font-family: 'PerfectDOSVGA437', 'Tahoma', sans-serif;
+    font-size: 1.8em;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-#loadingBarContainer {
-    position: relative;
-    width: 50%;
-    height: 24px; /* Adjusted for retro look */
-    background: #C0C0C0; /* Windows 95 grey */
-    border: 2px solid #FFFFFF; /* White border */
-    box-shadow: inset 1px 1px 0 #7F7F7F, inset -1px -1px 0 #000000; /* Inset shadow for 3D effect */
-    margin-bottom: 20px;
-}
-
-#loadingBar {
-    width: 0%; /* Start at 0% width */
+#loadingScreen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background: #000080; /* Windows 95 blue */
-    box-shadow: inset 1px 1px 0 #FFFFFF, inset -1px -1px 0 #7F7F7F; /* Inset shadow for 3D effect */
-    transition: width 0.2s; /* Smooth transition */
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, rgba(0,0,0,0) 1px);
+    background-size: 3px 3px;
+    opacity: 0.3;
 }
 
-#loadingItems {
-    height: 100px;
-    overflow: overlay;
-    width: 50%;
-    list-style: none;
+#loadingScreenText {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+#loadingScreenImg {
+    padding: 4rem;
+}
+#loadingScreenImg img {
+    width: 100%;
+}
+
+#loadingScreenText .loadingScreenText_child {
+    padding: 24px;
+}
+
+.textContent_1 {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.textContent_2 {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.textContent_2 p {
+    height: 30px;
+}
+
+.textContent_3 {
+    margin-top: 2rem;
+    display: flex;
+    column-gap: 8rem;
+}
+
+.textContent_4 {
+    margin-top: 2rem;
+    display: flex;
+    column-gap: 6rem;
+}
+.textContent_5 {
+    margin-top: 4rem;
+    display: flex;
+    column-gap: 4rem;
+}
+.bold {
+    font-weight: 500;
     color: white;
-    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1200px) {
+    #loadingScreen {
+        font-size: 1.6em;
+    }
+
+    #loadingScreenImg {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    #loadingScreen {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.4em;
+    }
+
+    #loadingScreenText, #loadingScreenImg {
+        width: 100%;
+    }
+
+    .loadingScreenText_child {
+        padding: 16px;
+    }
+
+    .textContent_3 {
+        column-gap: 1rem;
+    }
+
+    .textContent_5 {
+        column-gap: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #loadingScreen {
+        font-size: 1.2em;
+    }
+
+    .loadingScreenText_child {
+        padding: 8px;
+    }
+
+    #loadingScreenImg {
+        padding: 0.5rem;
+    }
+}
+
+.fade-out {
+    animation: turn-on 3s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+}
+
+@keyframes turn-on {
+    0% {
+        transform: scale(1, 0.8) translate3d(0, 0, 0);
+        opacity: 1;
+    }
+    3.5% {
+        transform: scale(1, 0.8) translate3d(0, 100%, 0);
+    }
+
+    3.6% {
+        transform: scale(1, 0.8) translate3d(0, -100%, 0);
+        opacity: 1;
+    }
+
+    9% {
+        transform: scale(1.3, 0.6) translate3d(0, 100%, 0);
+        opacity: 0;
+    }
+
+    11% {
+        transform: scale(1, 1) translate3d(0, 0, 0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1, 1) translate3d(0, 0, 0);
+        opacity: 1;
+    }
 }

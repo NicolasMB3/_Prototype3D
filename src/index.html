@@ -14,28 +14,96 @@
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-T6LW8P8Q');</script>
     <!-- End Google Tag Manager -->
-    <style>
-        /* Include the CSS from above here */
-    </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6LW8P8Q"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<div id="webgl"></div>
-<div id="css3d"></div>
-<div id="shader"></div>
-<div id="loadingScreen">
-    <div id="loadingBarContainer">
-        <div id="loadingBar"></div>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6LW8P8Q" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="container">
+        <div id="webgl"></div>
+        <div id="css3d"></div>
+        <div id="shader"></div>
     </div>
-    <ul id="loadingItems"></ul>
-</div>
-<script type="module" src="./script.js"></script>
+    <div id="loadingScreen">
+        <div id="loadingScreenText">
+            <div class="loadingScreenText_child">
+                <div class="textContent_1">
+                    <img src="./textures/logo.png" alt="Logo du BIOS">
+                    <div>
+                        <p>PrototypeOS par <span class="bold">@NicolasB</span></p>
+                        <p>AMI BIOS (C) 1999 American Megatrends Inc.</p>
+                    </div>
+                </div>
+                <div class="textContent_2">
+                    <div>
+                        <p>Plateforme</p>
+                        <p>Agent</p>
+                        <p></p>
+                        <p></p>
+                        <p>Constructeur</p>
+                    </div>
+                    <div>
+                        <p>:ASUS DRW-24B</p>
+                        <p>:Au moins 8Go</p>
+                        <p>:834252934B</p>
+                        <p></p>
+                        <p>:ASUS</p>
+                    </div>
+                </div>
+                <div class="textContent_3">
+                    <div>
+                        <p>Coeurs</p>
+                        <p>RAM</p>
+                        <p>Quota de stockage</p>
+                        <p>Utilisation du stockage</p>
+                    </div>
+                    <div>
+                        <p>:12</p>
+                        <p>:Au moins 8Go</p>
+                        <p>:834252934B</p>
+                        <p>:4235234523B (100%)</p>
+                    </div>
+                </div>
+                <div class="textContent_4">
+                    <div>
+                        <p id="file1">Fichier à charger n1</p>
+                        <p id="file2">Fichier à charger n2</p>
+                        <p id="file3">Fichier à charger n3</p>
+                        <p id="file4">Fichier à charger n4</p>
+                        <p id="file5">Fichier à charger n5</p>
+                    </div>
+                    <div>
+                        <p id="progress1">:4235234523B (20%)</p>
+                        <p id="progress2">:4235234523B (40%)</p>
+                        <p id="progress3">:4235234523B (60%)</p>
+                        <p id="progress4">:4235234523B (80%)</p>
+                        <p id="progress5">:4235234523B (100%)</p>
+                    </div>
+                </div>
+                <div class="textContent_5">
+                    <div>
+                        <p>Date</p>
+                        <p>Fuseau horaire</p>
+                    </div>
+                    <div>
+                        <p id="currentDateTime">:01/01/2023, 12:00:00</p>
+                        <p>:Europe</p>
+                    </div>
+                </div>
+            </div>
+            <div class="loadingScreenText_child">
+                <p>Appuyer sur <span class="bold">ENTER</span> pour demarrer..</p>
+                <p>Demarrage automatique dans <span class="bold" id="autoStartCounter">10</span> secondes...</p>
+            </div>
+        </div>
+        <div id="loadingScreenImg">
+            <img src="./textures/EPAlogo.png" alt="EPA logo">
+        </div>
+    </div>
+    <script type="module" src="./script.js"></script>
 </body>
 </html>
