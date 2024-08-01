@@ -21,7 +21,7 @@ export default class Camera {
 
     setInstance() {
         this.instance = new THREE.PerspectiveCamera(35, this.sizes.width / this.sizes.height, 10, 7000);
-        this.instance.position.set(800, 3555, 2910); // Starting at transition position
+        this.instance.position.set(800, 3555, 2910);
         this.scene.add(this.instance);
 
         // Debug
@@ -34,24 +34,12 @@ export default class Camera {
 
     setControls() {
         this.mouse = new THREE.Vector2();
-        this.rotationFactor = 0.1;
+        this.rotationFactor = 0.05;
 
         window.addEventListener('mousemove', (event) => this.onMouseMove(event));
     }
 
     onMouseMove(event) {
-        if (this.application.monitor && this.application.monitor.isIframeActive) {
-            const iframeRect = this.application.monitor.iframe.getBoundingClientRect();
-            if (
-                event.clientX < iframeRect.left ||
-                event.clientX > iframeRect.right ||
-                event.clientY < iframeRect.top ||
-                event.clientY > iframeRect.bottom
-            ) {
-                return;
-            }
-        }
-
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
@@ -60,8 +48,8 @@ export default class Camera {
         const targetRotationX = this.mouse.y * this.rotationFactor;
         const targetRotationY = -this.mouse.x * this.rotationFactor;
 
-        this.instance.rotation.x = THREE.MathUtils.lerp(this.instance.rotation.x, targetRotationX, 0.1);
-        this.instance.rotation.y = THREE.MathUtils.lerp(this.instance.rotation.y, targetRotationY, 0.1);
+        this.instance.rotation.x = THREE.MathUtils.lerp(this.instance.rotation.x, targetRotationX, 0.05);
+        this.instance.rotation.y = THREE.MathUtils.lerp(this.instance.rotation.y, targetRotationY, 0.05);
     }
 
     moveToPosition(targetPosition) {
@@ -97,7 +85,6 @@ export default class Camera {
 
     update() {
         if (!this.application.monitor || this.application.monitor.isIframeActive) return;
-
         this.applyRotation();
         this.setIframeVisibility();
     }

@@ -99,7 +99,7 @@ export default class Monitor extends InteractiveObject {
         const fingerprintsTextureMesh = this.createTextureMesh(
             cssObject,
             "./textures/monitor/fingerprints.jpg",
-            0.25,
+            0.3,
             40.5
         );
         const shadowTextureMesh = this.createTextureMesh(
@@ -117,7 +117,7 @@ export default class Monitor extends InteractiveObject {
         const glitchTextureMesh = this.createVideoTextureMesh(
             cssObject,
             "./textures/monitor/glitch.mp4",
-            0.025,
+            0.03,
             40.8
         );
 
@@ -203,11 +203,10 @@ export default class Monitor extends InteractiveObject {
             color: 0xffffff,
             roughness: 0.05,
             metalness: 0.6,
-            side: THREE.DoubleSide,
-            opacity: 0.12,
+            opacity: 0.17,
             transparent: true,
             envMap: envMap,
-            envMapIntensity: 0.065,
+            envMapIntensity: 0.07,
         });
         const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
 
