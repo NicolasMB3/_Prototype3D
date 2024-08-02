@@ -41,6 +41,7 @@ export default class Application extends EventEmitter {
         this.camera = new Camera();
 
         this.loadingScreen = new LoadingScreen();
+        this.loadingScreen.loadingEnd = undefined;
         this.resources = new Resources(sources, this.loadingScreen.getLoadingManager());
 
         this.renderer = new Renderer(canvas, canvas3D);

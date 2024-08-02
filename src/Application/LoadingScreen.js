@@ -8,6 +8,7 @@ export default class LoadingScreen {
         this.application = new Application();
         this.sizes = this.application.sizes;
         this.canvas = this.application.loadingCanvas;
+        this.loadingEnd = undefined;
 
         this.camera = new THREE.OrthographicCamera(
             this.sizes.width / -2,
@@ -37,6 +38,8 @@ export default class LoadingScreen {
 
     loadComplete() {
 
+        this.loadingEnd = false;
+
         document.querySelector('#loadingMessage').style.display = 'none';
         document.querySelectorAll('.p_child').forEach((element) => {
             element.style.display = 'block';
@@ -48,6 +51,7 @@ export default class LoadingScreen {
                 opacity: 0,
                 duration: 0.1,
                 onComplete: () => {
+                    this.loadingEnd = true;
                     this.loadingScreenElement.style.display = 'none';
                 }
             });
@@ -71,6 +75,7 @@ export default class LoadingScreen {
         const autoFadeOutTimeout = setTimeout(fadeOutLoadingScreen, 10000);
         const onEnterPress = (event) => {
             if (event.key === 'Enter') {
+                this.loadingEnd = true;
                 clearTimeout(autoFadeOutTimeout);
                 fadeOutLoadingScreen();
             }
@@ -82,6 +87,9 @@ export default class LoadingScreen {
     }
 
     inLoad(url, itemsLoaded, itemsTotal) {
+
+        this.loadingEnd = false;
+
         const progress = itemsLoaded / itemsTotal;
         const fileIndex = itemsLoaded;
         const currentFileElement = document.getElementById(`file${fileIndex}`);

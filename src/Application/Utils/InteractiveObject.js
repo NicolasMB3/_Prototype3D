@@ -7,6 +7,7 @@ export default class InteractiveObject extends EventEmitter {
     constructor(application) {
         super();
         this.application = application;
+        this.application.loadingScreen.loadingEnd = undefined;
         this.scene = this.application.scene;
         this.camera = this.application.camera.instance;
         this.clock = this.application.clock;
@@ -38,6 +39,10 @@ export default class InteractiveObject extends EventEmitter {
         window.addEventListener("mousemove", this.handleCursorMessageMove);
         window.addEventListener("click", this.handleMouseClick.bind(this));
 
+        window.addEventListener("touchstart", this.handleTouchStart.bind(this), { passive: false });
+        window.addEventListener("touchmove", this.handleTouchMove.bind(this), { passive: false });
+        window.addEventListener("touchend", this.handleTouchEnd.bind(this), { passive: false });
+
         this.interactiveObjects = [];
 
         this.clock.on("tick", () => {
@@ -50,6 +55,8 @@ export default class InteractiveObject extends EventEmitter {
     }
 
     updateMousePositionAndIntersects(event) {
+        if (!this.application.loadingScreen.loadingEnd) return;
+
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -65,9 +72,32 @@ export default class InteractiveObject extends EventEmitter {
     }
 
     handleMouseClick() {
-        const intersects = this.raycaster.intersectObjects(
-            this.interactiveObjects
-        );
+        if (!this.application.loadingScreen.loadingEnd) return;
+
+        const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
+        if (intersects.length > 0) {
+            this.onObjectClick(intersects[0].object);
+        } else if (this.isExitMessageDisplayed) {
+            this.onExitClick();
+        }
+    }
+
+    handleTouchStart(event) {
+        if (event.touches.length === 1) {
+            this.updateMousePositionAndIntersects(event.touches[0]);
+        }
+    }
+
+    handleTouchMove(event) {
+        if (event.touches.length === 1) {
+            this.updateMousePositionAndIntersects(event.touches[0]);
+        }
+    }
+
+    handleTouchEnd(event) {
+        if (!this.application.loadingScreen.loadingEnd) return;
+
+        const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
         if (intersects.length > 0) {
             this.onObjectClick(intersects[0].object);
         } else if (this.isExitMessageDisplayed) {
@@ -76,7 +106,7 @@ export default class InteractiveObject extends EventEmitter {
     }
 
     onObjectMouseOver(object) {
-        if (!this.isMouseOver) {
+        if (!this.isMouseOver && this.application.loadingScreen.loadingEnd) {
             this.isMouseOver = true;
             this.trigger("object:mouseover");
 
