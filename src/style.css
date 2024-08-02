@@ -271,3 +271,24 @@ html, body {
         opacity: 1;
     }
 }
+
+#ui {
+    position: fixed;
+    bottom: 40px;
+    right: 50%;
+    transform: translateX(50%);
+    font-family: monospace;
+    font-weight: 400;
+    font-style: normal;
+    background-color: black;
+    opacity: .8;
+    padding: 8px 14px;
+    color: white;
+
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+
+    z-index: 5;
+}

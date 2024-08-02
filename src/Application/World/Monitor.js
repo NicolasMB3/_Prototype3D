@@ -99,7 +99,7 @@ export default class Monitor extends InteractiveObject {
         const fingerprintsTextureMesh = this.createTextureMesh(
             cssObject,
             "./textures/monitor/fingerprints.jpg",
-            0.3,
+            0.2,
             40.5
         );
         const shadowTextureMesh = this.createTextureMesh(
@@ -111,13 +111,13 @@ export default class Monitor extends InteractiveObject {
         const dustTextureMesh = this.createTextureMesh(
             cssObject,
             "./textures/monitor/dust.jpg",
-            0.022,
+            0.015,
             40.7
         );
         const glitchTextureMesh = this.createVideoTextureMesh(
             cssObject,
             "./textures/monitor/glitch.mp4",
-            0.03,
+            0.04,
             40.8
         );
 
@@ -203,10 +203,10 @@ export default class Monitor extends InteractiveObject {
             color: 0xffffff,
             roughness: 0.05,
             metalness: 0.6,
-            opacity: 0.17,
+            opacity: 0.12,
             transparent: true,
             envMap: envMap,
-            envMapIntensity: 0.07,
+            envMapIntensity: 0.09,
         });
         const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
 
@@ -276,10 +276,6 @@ export default class Monitor extends InteractiveObject {
         this.cursorMessage.style.display = "block";
     }
 
-    setIframeVisibility(isVisible) {
-        this.iframe.style.display = isVisible ? 'block' : 'none';
-    }
-
     createIframeNote() {
         const geometry = new THREE.PlaneGeometry(1050, 930);
         const material = new THREE.MeshBasicMaterial({
@@ -331,22 +327,21 @@ export default class Monitor extends InteractiveObject {
                 this.cursorMessage.style.display = "none";
                 this.textEffect.stopEffect();
             },
-            onClick: () => {
-                this.togglePlaneState();
-            }
         };
     }
 
     onScreenClick() {
         const targetPosition = CAMERA_SETTINGS.positions[1];
+        const targetRotation = new THREE.Euler(0, 0, 0);
+
         this.application.camera.moveToPosition(targetPosition);
+        this.application.camera.animateRotation(targetRotation);
         this.isObjectActive = true;
     }
 
     onObjectExit() {
         this.iframe.style.pointerEvents = "none";
         this.cursorMessage.innerText = this.defaultMessage;
-        this.setIframeVisibility(false);
     }
 
     onExitClick() {

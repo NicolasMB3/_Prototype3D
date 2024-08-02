@@ -34,7 +34,7 @@ export default class Camera {
 
     setControls() {
         this.mouse = new THREE.Vector2();
-        this.rotationFactor = 0.05;
+        this.rotationFactor = 0.1;
 
         window.addEventListener('mousemove', (event) => this.onMouseMove(event));
     }
@@ -48,8 +48,18 @@ export default class Camera {
         const targetRotationX = this.mouse.y * this.rotationFactor;
         const targetRotationY = -this.mouse.x * this.rotationFactor;
 
-        this.instance.rotation.x = THREE.MathUtils.lerp(this.instance.rotation.x, targetRotationX, 0.05);
-        this.instance.rotation.y = THREE.MathUtils.lerp(this.instance.rotation.y, targetRotationY, 0.05);
+        this.instance.rotation.x = THREE.MathUtils.lerp(this.instance.rotation.x, targetRotationX, 0.1);
+        this.instance.rotation.y = THREE.MathUtils.lerp(this.instance.rotation.y, targetRotationY, 0.1);
+    }
+
+    animateRotation(targetRotation) {
+        gsap.to(this.instance.rotation, {
+            duration: 1.2,
+            x: targetRotation.x,
+            y: targetRotation.y,
+            z: targetRotation.z,
+            ease: "power2.inOut"
+        });
     }
 
     moveToPosition(targetPosition) {
@@ -63,30 +73,9 @@ export default class Camera {
         });
     }
 
-    calculateDistanceToIframe() {
-        if (!this.application.monitor || !this.application.monitor.object) return;
-
-        const iframePosition = new THREE.Vector3();
-        this.application.monitor.object.getWorldPosition(iframePosition);
-
-        return this.instance.position.distanceTo(iframePosition);
-    }
-
-    setIframeVisibility() {
-        const distanceToIframe = this.calculateDistanceToIframe();
-        const visibilityThreshold = 1700;
-
-        if (distanceToIframe < visibilityThreshold) {
-            this.application.monitor.setIframeVisibility(false);
-        } else {
-            this.application.monitor.setIframeVisibility(true);
-        }
-    }
-
     update() {
         if (!this.application.monitor || this.application.monitor.isIframeActive) return;
         this.applyRotation();
-        this.setIframeVisibility();
     }
 
     resize() {

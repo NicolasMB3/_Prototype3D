@@ -56,7 +56,6 @@ export default class LoadingScreen {
             animateCamera();
         };
 
-        // Function to animate the camera
         const animateCamera = () => {
             const cameraInstance = this.application.camera.instance;
             const originalPosition = CAMERA_SETTINGS.positions[0];
@@ -69,10 +68,7 @@ export default class LoadingScreen {
             });
         };
 
-        // Set a timeout to auto fade out the loading screen
         const autoFadeOutTimeout = setTimeout(fadeOutLoadingScreen, 10000);
-
-        // Handle 'Enter' key press to manually fade out the loading screen
         const onEnterPress = (event) => {
             if (event.key === 'Enter') {
                 clearTimeout(autoFadeOutTimeout);
@@ -82,7 +78,6 @@ export default class LoadingScreen {
 
         window.addEventListener('keydown', onEnterPress);
 
-        // Start the countdown
         this.startCountdown();
     }
 
