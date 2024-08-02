@@ -180,9 +180,15 @@ html, body {
 }
 
 /* Media Queries for Responsiveness */
+@media (max-height: 1200px) {
+    #loadingScreen {
+        font-size: 20px;
+    }
+}
+
 @media (max-width: 1200px) {
     #loadingScreen {
-        font-size: 1.4em;
+        font-size: 20px;
     }
 
     #loadingScreenImg {
@@ -291,4 +297,6 @@ html, body {
     gap: 0.5rem;
 
     z-index: 5;
+
+    transition: opacity 0.5s;
 }
