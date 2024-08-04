@@ -22,6 +22,8 @@ export const CAMERA_SETTINGS = {
         { x: 2485, y: 4175, z: -1000 }, // StickyNote 4
         { x: 2225, y: 3315, z: 400 },   // StickyNote 5
         // Transition position
-        { x: 1000, y: 3000, z: 2000 }
+        { x: 1000, y: 3000, z: 2000 },
+        // Paper plane
+        { x: -730, y: 3330, z: -450 }
     ],
 };

@@ -171,6 +171,10 @@ export default class InteractiveObject extends EventEmitter {
         this.textEffect.stopEffect();
         this.isExitMessageDisplayed = false;
         this.activeInteractiveObject = object;
+
+        if (object.userData && object.userData.onClick) {
+            object.userData.onClick();
+        }
     }
 
     onExitClick() {
@@ -181,6 +185,7 @@ export default class InteractiveObject extends EventEmitter {
         this.isExitMessageDisplayed = false;
         this.onObjectExit();
         this.activeInteractiveObject = null;
+        this.application.camera.resetRotation();
     }
 
     onObjectExit() {
