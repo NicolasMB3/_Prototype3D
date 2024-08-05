@@ -24,6 +24,6 @@ export const CAMERA_SETTINGS = {
         // Transition position
         { x: 1000, y: 3000, z: 2000 },
         // Paper plane
-        { x: -730, y: 3330, z: -450 }
+        { x: -730, y: 3170, z: 125 }
     ],
 };

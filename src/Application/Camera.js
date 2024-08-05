@@ -78,7 +78,6 @@ export default class Camera {
         if (this.isMobile) {
             window.addEventListener('touchstart', (event) => this.onTouchStart(event), { passive: false });
             window.addEventListener('touchmove', (event) => this.onTouchMove(event), { passive: false });
-            window.addEventListener('touchend', () => this.onTouchEnd(), { passive: false });
         } else {
             window.addEventListener('mousemove', (event) => this.onMouseMove(event));
         }
@@ -100,56 +99,33 @@ export default class Camera {
         this.fixedRotation = rotation;
     }
 
-    resetRotation() {
-        this.fixedRotation = null;
-        this.disableMouseControl();
-
-        gsap.timeline()
-            .to(this.instance.rotation, {
-                duration: 1.2,
-                x: 0,
-                y: 0,
-                z: 0,
-                ease: "power2.inOut",
-            }, 0)
-            .to(this.instance.position, {
-                duration: 1.2,
-                x: 800,
-                y: 3055,
-                z: 2910,
-                onUpdate: () => this.instance.updateProjectionMatrix(),
-                ease: "power2.inOut",
-                onComplete: () => {
-                    this.enableMouseControl();
-                }
-            }, 0);
-    }
-
     animatePositionAndRotation(targetPosition, targetRotation, onComplete) {
         this.disableMouseControl();
 
-        // Animate position first, then rotation
-        gsap.timeline()
-            .to(this.instance.position, {
-                duration: 1.2,
-                x: targetPosition.x,
-                y: targetPosition.y,
-                z: targetPosition.z,
-                ease: "power2.inOut",
-                onUpdate: () => this.instance.updateProjectionMatrix()
-            })
+        const timeline = gsap.timeline({
+            onComplete: () => {
+                this.setFixedRotation(null);
+                this.enableMouseControl();
+                if (onComplete) onComplete();
+            }
+        });
+
+        timeline.to(this.instance.position, {
+            duration: 1.2,
+            x: targetPosition.x,
+            y: targetPosition.y,
+            z: targetPosition.z,
+            ease: "power2.inOut",
+            onUpdate: () => this.instance.updateProjectionMatrix()
+        }, 0)
             .to(this.instance.rotation, {
                 duration: 1.2,
-                x: -Math.PI / 2,
-                y: 0,
-                z: 0,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    this.setFixedRotation(null);
-                    this.enableMouseControl();
-                    if (onComplete) onComplete();
-                }
-            }, "<");
+                x: targetRotation.x,
+                y: targetRotation.y,
+                z: targetRotation.z,
+                ease: "power2.inOut"
+            }, 0);
+
     }
 
     onMouseMove(event) {
@@ -178,10 +154,6 @@ export default class Camera {
 
             this.previousTouch.set(touch.clientX, touch.clientY);
         }
-    }
-
-    onTouchEnd() {
-        this.isDragging = false;
     }
 
     applyRotation() {
@@ -234,11 +206,8 @@ export default class Camera {
 
     update() {
         if (!this.application.monitor || this.application.monitor.isIframeActive) return;
-        if (!this.fixedRotation) {
-            this.applyRotation();
-        } else {
-            this.instance.rotation.copy(this.fixedRotation);
-        }
+
+        this.applyRotation();
     }
 
     resize() {

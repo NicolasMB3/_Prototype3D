@@ -77,10 +77,11 @@ export default class InteractiveObject extends EventEmitter {
         const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
         if (intersects.length > 0) {
             this.onObjectClick(intersects[0].object);
-        } else if (this.isExitMessageDisplayed) {
-            this.onExitClick();
+        } else if (this.isObjectActive) {
+            this.onExitClick();  // Ajoutez cette ligne pour gérer le clic en dehors de la "plane"
         }
     }
+
 
     handleTouchStart(event) {
         if (event.touches.length === 1) {
@@ -178,14 +179,21 @@ export default class InteractiveObject extends EventEmitter {
     }
 
     onExitClick() {
-        this.application.camera.moveToPosition(CAMERA_SETTINGS.positions[0]);
-        this.isObjectActive = false;
-        this.cursorMessage.style.display = "none";
-        this.textEffect.stopEffect();
-        this.isExitMessageDisplayed = false;
-        this.onObjectExit();
-        this.activeInteractiveObject = null;
-        this.application.camera.resetRotation();
+        this.animateCameraToDefault(() => {
+            this.isObjectActive = false;
+            this.cursorMessage.style.display = "none";
+            this.textEffect.stopEffect();
+            this.isExitMessageDisplayed = false;
+            this.onObjectExit();
+            this.activeInteractiveObject = null;
+        });
+    }
+
+    animateCameraToDefault(onComplete) {
+        const defaultPosition = CAMERA_SETTINGS.positions[0];
+        const defaultRotation = new THREE.Euler(0, 0, 0);
+
+        this.application.camera.animatePositionAndRotation(defaultPosition, defaultRotation, onComplete);
     }
 
     onObjectExit() {
