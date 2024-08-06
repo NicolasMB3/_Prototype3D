@@ -48,6 +48,8 @@ export default class InteractiveObject extends EventEmitter {
         this.clock.on("tick", () => {
             this.update();
         });
+
+        this.touchStartTime = 0;
     }
 
     initRaycaster(objects) {
@@ -86,24 +88,29 @@ export default class InteractiveObject extends EventEmitter {
     handleTouchStart(event) {
         if (event.touches.length === 1) {
             this.updateMousePositionAndIntersects(event.touches[0]);
+            this.touchStartTime = new Date().getTime();
         }
     }
 
     handleTouchMove(event) {
         if (event.touches.length === 1) {
             this.updateMousePositionAndIntersects(event.touches[0]);
+            this.updateCursorMessagePosition(event.touches[0]);
         }
     }
 
     handleTouchEnd(event) {
         if (!this.application.loadingScreen.loadingEnd) return;
 
-        const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
-        if (intersects.length > 0) {
-            this.onObjectClick(intersects[0].object);
-        } else if (this.isExitMessageDisplayed) {
-            this.onExitClick();
-            this.cursorMessage.style.display = 'none';
+        const touchEndTime = new Date().getTime();
+        if (touchEndTime - this.touchStartTime < 300) {
+            const intersects = this.raycaster.intersectObjects(this.interactiveObjects);
+            if (intersects.length > 0) {
+                this.onObjectClick(intersects[0].object);
+            } else if (this.isExitMessageDisplayed) {
+                this.onExitClick();
+                this.cursorMessage.style.display = 'none';
+            }
         }
     }
 

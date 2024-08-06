@@ -27,6 +27,69 @@ export default class LoadingScreen {
 
         this.setInstance();
         this.setTimeAndDate();
+
+        // Detect if the user is on a mobile device
+        this.isMobile = /Mobi|Android/i.test(window.navigator.userAgent);
+
+        // Set appropriate text based on device type
+        this.setInstructionText();
+
+        // Add event listeners based on device type
+        this.addStartEventListeners();
+    }
+
+    setInstructionText() {
+        const enterMessage = document.querySelector('#enterMessage')
+        if (this.isMobile) {
+            enterMessage.innerHTML = 'L\'ECRAN';
+        } else {
+            enterMessage.innerHTML = 'ENTER';
+        }
+    }
+
+    addStartEventListeners() {
+        if (this.isMobile) {
+            // On mobile, detect touch/click on screen
+            this.loadingScreenElement.addEventListener('click', () => this.startLoading());
+        } else {
+            // On desktop, detect Enter key press
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    this.startLoading();
+                }
+            });
+        }
+    }
+
+    startLoading() {
+        if (this.loadingEnd) return; // Prevent multiple triggers
+        this.loadingEnd = true;
+        this.fadeOutLoadingScreen();
+    }
+
+    fadeOutLoadingScreen() {
+        gsap.to(this.loadingScreenElement, {
+            opacity: 0,
+            duration: 0.1,
+            onComplete: () => {
+                this.loadingScreenElement.style.display = 'none';
+                this.container.style.display = 'block';
+                this.container.classList.add('fade-out');
+                this.animateCamera();
+            }
+        });
+    }
+
+    animateCamera() {
+        const cameraInstance = this.application.camera.instance;
+        const originalPosition = CAMERA_SETTINGS.positions[0];
+        gsap.to(cameraInstance.position, {
+            duration: 1.2,
+            x: originalPosition.x,
+            y: originalPosition.y,
+            z: originalPosition.z,
+            ease: "power2.inOut"
+        });
     }
 
     setInstance() {
@@ -37,57 +100,16 @@ export default class LoadingScreen {
     }
 
     loadComplete() {
-
         this.loadingEnd = false;
-
         document.querySelector('#loadingMessage').style.display = 'none';
         document.querySelectorAll('.p_child').forEach((element) => {
             element.style.display = 'block';
         });
 
-        // Function to fade out the loading screen
-        const fadeOutLoadingScreen = () => {
-            gsap.to(this.loadingScreenElement, {
-                opacity: 0,
-                duration: 0.1,
-                onComplete: () => {
-                    this.loadingEnd = true;
-                    this.loadingScreenElement.style.display = 'none';
-                }
-            });
-            this.container.style.display = 'block';
-            this.container.classList.add('fade-out');
-            animateCamera();
-        };
-
-        const animateCamera = () => {
-            const cameraInstance = this.application.camera.instance;
-            const originalPosition = CAMERA_SETTINGS.positions[0];
-            gsap.to(cameraInstance.position, {
-                duration: 1.2,
-                x: originalPosition.x,
-                y: originalPosition.y,
-                z: originalPosition.z,
-                ease: "power2.inOut"
-            });
-        };
-
-        const autoFadeOutTimeout = setTimeout(fadeOutLoadingScreen, 10000);
-        const onEnterPress = (event) => {
-            if (event.key === 'Enter') {
-                this.loadingEnd = true;
-                clearTimeout(autoFadeOutTimeout);
-                fadeOutLoadingScreen();
-            }
-        };
-
-        window.addEventListener('keydown', onEnterPress);
-
         this.startCountdown();
     }
 
     inLoad(url, itemsLoaded, itemsTotal) {
-
         this.loadingEnd = false;
 
         const progress = itemsLoaded / itemsTotal;
@@ -111,6 +133,9 @@ export default class LoadingScreen {
             this.counterElement.textContent = counter;
             if (counter <= 0) {
                 clearInterval(countdown);
+                if (!this.loadingEnd) {
+                    this.startLoading(); // Automatically start loading if countdown reaches 0
+                }
             }
         }, 1000);
     }

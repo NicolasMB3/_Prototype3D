@@ -23,12 +23,12 @@ export default class Paper extends InteractiveObject {
         this.currentLine = null;
         this.points = [];
         this.isClicked = false;
-        this.lineColor = 0x000000; // Default line color
-        this.erasing = false; // Eraser mode off by default
-        this.eraserActive = false; // Track if eraser mode is active
+        this.lineColor = 0x000000;  // Default line color
+        this.erasing = false;       // Eraser mode off by default
+        this.eraserActive = false;  // Track if eraser mode is active
 
         this.createPlane();
-        this.initRaycaster([this.plane, this.smallPlane1, this.smallPlane2, this.smallPlane3]);
+        this.initRaycaster([this.plane, ...this.smallPlanes]);
 
         // Event listeners for drawing and erasing
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
@@ -58,63 +58,28 @@ export default class Paper extends InteractiveObject {
         plane.userData.onMouseOut = () => this.onPaperMouseOut();
         plane.userData.onClick = () => this.onPaperClick();
 
+        this.smallPlanes = [
+            this.createIconPlane('./icons/eraser.png', { x: 165, y: 2, z: -225 }, this.activateEraserMode.bind(this)),
+            this.createIconPlane('./icons/paint_blue.png', { x: 105, y: 2, z: -225 }, () => this.changeLineColor(0x0000ff)),
+            this.createIconPlane('./icons/paint_black.png', { x: 75, y: 2, z: -225 }, () => this.changeLineColor(0x000000)),
+            this.createIconPlane('./icons/paint_red.png', { x: 135, y: 2, z: -225 }, () => this.changeLineColor(0xff0000))
+        ];
+
+        this.smallPlanes.forEach(plane => this.scene.add(plane));
+    }
+
+    createIconPlane(iconUrl, position, onClickHandler) {
         const textureLoader = new THREE.TextureLoader();
+        const iconTexture = textureLoader.load(iconUrl);
+        const smallGeometry = new THREE.PlaneGeometry(25, 25);
+        const smallMaterial = new THREE.MeshBasicMaterial({ map: iconTexture, transparent: true });
+        const smallPlane = new THREE.Mesh(smallGeometry, smallMaterial);
 
-        // Load the first icon
-        const icon1Texture = textureLoader.load('./icons/eraser.png');
-        const smallGeometry1 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial1 = new THREE.MeshBasicMaterial({ map: icon1Texture, transparent: true });
-        const smallPlane1 = new THREE.Mesh(smallGeometry1, smallMaterial1);
+        smallPlane.position.set(this.position.x + position.x, this.position.y + position.y, this.position.z + position.z);
+        smallPlane.rotation.copy(this.plane.rotation);
 
-        smallPlane1.position.set(this.position.x + 165, this.position.y + 2, this.position.z - 225);
-        smallPlane1.rotation.copy(plane.rotation);
-
-        this.scene.add(smallPlane1);
-        this.smallPlane1 = smallPlane1;
-
-        smallPlane1.userData.onClick = () => this.activateEraserMode();
-
-        // Load the second icon
-        const icon2Texture = textureLoader.load('./icons/paint_blue.png');
-        const smallGeometry2 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial2 = new THREE.MeshBasicMaterial({ map: icon2Texture, transparent: true });
-        const smallPlane2 = new THREE.Mesh(smallGeometry2, smallMaterial2);
-
-        smallPlane2.position.set(this.position.x + 105, this.position.y + 2, this.position.z - 225);
-        smallPlane2.rotation.copy(plane.rotation);
-
-        this.scene.add(smallPlane2);
-        this.smallPlane2 = smallPlane2;
-
-        smallPlane2.userData.onClick = () => this.changeLineColorToBlue();
-
-        // Load the third icon
-        const icon3Texture = textureLoader.load('./icons/paint_black.png');
-        const smallGeometry3 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial3 = new THREE.MeshBasicMaterial({ map: icon3Texture, transparent: true });
-        const smallPlane3 = new THREE.Mesh(smallGeometry3, smallMaterial3);
-
-        smallPlane3.position.set(this.position.x + 75, this.position.y + 2, this.position.z - 225);
-        smallPlane3.rotation.copy(plane.rotation);
-
-        this.scene.add(smallPlane3);
-        this.smallPlane3 = smallPlane3;
-
-        smallPlane3.userData.onClick = () => this.changeLineColorToBlack();
-
-        // Load the fourth icon
-        const icon4Texture = textureLoader.load('./icons/paint_red.png');
-        const smallGeometry4 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial4 = new THREE.MeshBasicMaterial({ map: icon4Texture, transparent: true });
-        const smallPlane4 = new THREE.Mesh(smallGeometry4, smallMaterial4);
-
-        smallPlane4.position.set(this.position.x + 135, this.position.y + 2, this.position.z - 225);
-        smallPlane4.rotation.copy(plane.rotation);
-
-        this.scene.add(smallPlane4);
-        this.smallPlane4 = smallPlane4;
-
-        smallPlane4.userData.onClick = () => this.changeLineColorToRed();
+        smallPlane.userData.onClick = onClickHandler;
+        return smallPlane;
     }
 
     onPaperMouseOver() {
@@ -141,26 +106,17 @@ export default class Paper extends InteractiveObject {
     onMouseDown(event) {
         if (!this.isClicked) return;
 
-        const intersects = this.raycaster.intersectObjects([this.plane, this.smallPlane1, this.smallPlane2, this.smallPlane3, this.smallPlane4]);
+        const intersects = this.raycaster.intersectObjects([this.plane, ...this.smallPlanes]);
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
-            if (intersectedObject === this.smallPlane1) {
-                this.activateEraserMode();
-            } else if (intersectedObject === this.smallPlane2) {
-                this.changeLineColorToBlue();
-            } else if (intersectedObject === this.smallPlane3) {
-                this.changeLineColorToBlack();
-            } else if (intersectedObject === this.smallPlane4) {
-                this.changeLineColorToRed();
+            intersectedObject.userData.onClick();
+            if (!this.erasing) {
+                this.drawing = true;
+                this.points = [];
+                this.addPoint(event);
             } else {
-                if (this.erasing) {
-                    this.eraserActive = true;
-                    this.updateEraserCircle(event);
-                } else {
-                    this.drawing = true;
-                    this.points = [];
-                    this.addPoint(event);
-                }
+                this.eraserActive = true;
+                this.updateEraserCircle(event);
             }
         }
     }
@@ -178,16 +134,21 @@ export default class Paper extends InteractiveObject {
         }
     }
 
-    onMouseUp(event) {
+    onMouseUp() {
         this.drawing = false;
         this.eraserActive = false;
         this.currentLine = null;
     }
 
-    addPoint(event) {
+    getMouseCoordinates(event) {
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        return mouse;
+    }
+
+    addPoint(event) {
+        const mouse = this.getMouseCoordinates(event);
         this.raycaster.setFromCamera(mouse, this.camera);
 
         const intersects = this.raycaster.intersectObject(this.plane);
@@ -217,10 +178,8 @@ export default class Paper extends InteractiveObject {
     }
 
     eraseLine(event) {
-        const eraserRadius = 3; // Adjust the eraser radius as needed
-        const mouse = new THREE.Vector2();
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const eraserRadius = 3;
+        const mouse = this.getMouseCoordinates(event);
         this.raycaster.setFromCamera(mouse, this.camera);
 
         const intersects = this.raycaster.intersectObjects(this.scene.children);
@@ -247,18 +206,8 @@ export default class Paper extends InteractiveObject {
         });
     }
 
-    changeLineColorToBlue() {
-        this.lineColor = 0x0000ff; // Blue color
-        this.erasing = false;
-    }
-
-    changeLineColorToBlack() {
-        this.lineColor = 0x000000; // Black color
-        this.erasing = false;
-    }
-
-    changeLineColorToRed() {
-        this.lineColor = 0xff0000; // Red color
+    changeLineColor(color) {
+        this.lineColor = color;
         this.erasing = false;
     }
 
@@ -281,9 +230,7 @@ export default class Paper extends InteractiveObject {
             return;
         }
 
-        const mouse = new THREE.Vector2();
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const mouse = this.getMouseCoordinates(event);
         this.raycaster.setFromCamera(mouse, this.camera);
 
         const intersects = this.raycaster.intersectObject(this.plane);
@@ -292,8 +239,6 @@ export default class Paper extends InteractiveObject {
             const elevation = 1;
             this.eraserCircle.position.set(intersectPoint.x, intersectPoint.y + elevation, intersectPoint.z);
             this.eraserCircle.visible = true;
-
-            // Faire face à la caméra
             this.eraserCircle.lookAt(this.camera.position);
         } else {
             this.eraserCircle.visible = false;
