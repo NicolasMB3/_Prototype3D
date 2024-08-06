@@ -35,6 +35,10 @@ export default class Paper extends InteractiveObject {
         window.addEventListener("mousemove", this.onMouseMove.bind(this));
         window.addEventListener("mouseup", this.onMouseUp.bind(this));
 
+        window.addEventListener("touchstart", this.onTouchStart.bind(this), { passive: false });
+        window.addEventListener("touchmove", this.onTouchMove.bind(this), { passive: false });
+        window.addEventListener("touchend", this.onTouchEnd.bind(this), { passive: false });
+
         this.createEraserCircle();
     }
 
@@ -138,6 +142,22 @@ export default class Paper extends InteractiveObject {
         this.drawing = false;
         this.eraserActive = false;
         this.currentLine = null;
+    }
+
+    onTouchStart(event) {
+        if (event.touches.length === 1) {
+            this.onMouseDown(event.touches[0]);
+        }
+    }
+
+    onTouchMove(event) {
+        if (event.touches.length === 1) {
+            this.onMouseMove(event.touches[0]);
+        }
+    }
+
+    onTouchEnd(event) {
+        this.onMouseUp();
     }
 
     getMouseCoordinates(event) {

@@ -26,10 +26,9 @@ export default class World extends EventEmitter {
             this.chocolate = new Chocolate();
             this.furnitures = new Furnitures();
             this.stickyNotes = new StickyNotes();
+            this.paper = new Paper();
             this.monitor = new Monitor();
             this.trigger('monitorReady', [this.monitor]);
-
-            this.paper = new Paper();
         });
     }
 

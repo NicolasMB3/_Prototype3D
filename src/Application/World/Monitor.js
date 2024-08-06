@@ -331,7 +331,12 @@ export default class Monitor extends InteractiveObject {
     }
 
     onScreenClick() {
-        const targetPosition = CAMERA_SETTINGS.positions[1];
+        const isMobile = /Mobi|Android/i.test(window.navigator.userAgent);
+
+        const targetPosition = isMobile
+            ? new THREE.Vector3(CAMERA_SETTINGS.positions[1].x, CAMERA_SETTINGS.positions[1].y, CAMERA_SETTINGS.positions[1].z + 600)
+            : CAMERA_SETTINGS.positions[1];
+
         const targetRotation = new THREE.Euler(0, 0, 0);
 
         this.application.camera.moveToPosition(targetPosition);
