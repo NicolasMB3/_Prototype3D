@@ -25,9 +25,10 @@ export default class Paper extends InteractiveObject {
         this.isClicked = false;
         this.lineColor = 0x000000; // Default line color
         this.erasing = false; // Eraser mode off by default
+        this.eraserActive = false; // Track if eraser mode is active
 
         this.createPlane();
-        this.initRaycaster([this.plane, this.smallPlane1, this.smallPlane2]);
+        this.initRaycaster([this.plane, this.smallPlane1, this.smallPlane2, this.smallPlane3]);
 
         // Event listeners for drawing and erasing
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
@@ -57,9 +58,12 @@ export default class Paper extends InteractiveObject {
         plane.userData.onMouseOut = () => this.onPaperMouseOut();
         plane.userData.onClick = () => this.onPaperClick();
 
-        // Create the first small plane
+        const textureLoader = new THREE.TextureLoader();
+
+        // Load the first icon
+        const icon1Texture = textureLoader.load('./icons/eraser.png');
         const smallGeometry1 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
+        const smallMaterial1 = new THREE.MeshBasicMaterial({ map: icon1Texture, transparent: true });
         const smallPlane1 = new THREE.Mesh(smallGeometry1, smallMaterial1);
 
         smallPlane1.position.set(this.position.x + 165, this.position.y + 2, this.position.z - 225);
@@ -70,18 +74,47 @@ export default class Paper extends InteractiveObject {
 
         smallPlane1.userData.onClick = () => this.activateEraserMode();
 
-        // Create the second small plane
+        // Load the second icon
+        const icon2Texture = textureLoader.load('./icons/paint_blue.png');
         const smallGeometry2 = new THREE.PlaneGeometry(25, 25);
-        const smallMaterial2 = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black color
+        const smallMaterial2 = new THREE.MeshBasicMaterial({ map: icon2Texture, transparent: true });
         const smallPlane2 = new THREE.Mesh(smallGeometry2, smallMaterial2);
 
-        smallPlane2.position.set(this.position.x + 135, this.position.y + 2, this.position.z - 225);
+        smallPlane2.position.set(this.position.x + 105, this.position.y + 2, this.position.z - 225);
         smallPlane2.rotation.copy(plane.rotation);
 
         this.scene.add(smallPlane2);
         this.smallPlane2 = smallPlane2;
 
         smallPlane2.userData.onClick = () => this.changeLineColorToBlue();
+
+        // Load the third icon
+        const icon3Texture = textureLoader.load('./icons/paint_black.png');
+        const smallGeometry3 = new THREE.PlaneGeometry(25, 25);
+        const smallMaterial3 = new THREE.MeshBasicMaterial({ map: icon3Texture, transparent: true });
+        const smallPlane3 = new THREE.Mesh(smallGeometry3, smallMaterial3);
+
+        smallPlane3.position.set(this.position.x + 75, this.position.y + 2, this.position.z - 225);
+        smallPlane3.rotation.copy(plane.rotation);
+
+        this.scene.add(smallPlane3);
+        this.smallPlane3 = smallPlane3;
+
+        smallPlane3.userData.onClick = () => this.changeLineColorToBlack();
+
+        // Load the fourth icon
+        const icon4Texture = textureLoader.load('./icons/paint_red.png');
+        const smallGeometry4 = new THREE.PlaneGeometry(25, 25);
+        const smallMaterial4 = new THREE.MeshBasicMaterial({ map: icon4Texture, transparent: true });
+        const smallPlane4 = new THREE.Mesh(smallGeometry4, smallMaterial4);
+
+        smallPlane4.position.set(this.position.x + 135, this.position.y + 2, this.position.z - 225);
+        smallPlane4.rotation.copy(plane.rotation);
+
+        this.scene.add(smallPlane4);
+        this.smallPlane4 = smallPlane4;
+
+        smallPlane4.userData.onClick = () => this.changeLineColorToRed();
     }
 
     onPaperMouseOver() {
@@ -108,17 +141,21 @@ export default class Paper extends InteractiveObject {
     onMouseDown(event) {
         if (!this.isClicked) return;
 
-        const intersects = this.raycaster.intersectObjects([this.plane, this.smallPlane1, this.smallPlane2]);
+        const intersects = this.raycaster.intersectObjects([this.plane, this.smallPlane1, this.smallPlane2, this.smallPlane3, this.smallPlane4]);
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             if (intersectedObject === this.smallPlane1) {
                 this.activateEraserMode();
             } else if (intersectedObject === this.smallPlane2) {
                 this.changeLineColorToBlue();
+            } else if (intersectedObject === this.smallPlane3) {
+                this.changeLineColorToBlack();
+            } else if (intersectedObject === this.smallPlane4) {
+                this.changeLineColorToRed();
             } else {
                 if (this.erasing) {
-                    this.erasing = true;
-                    this.eraseLine(event);
+                    this.eraserActive = true;
+                    this.updateEraserCircle(event);
                 } else {
                     this.drawing = true;
                     this.points = [];
@@ -132,16 +169,18 @@ export default class Paper extends InteractiveObject {
         if (this.drawing) {
             this.addPoint(event);
             this.drawLine();
-        } else if (this.erasing) {
+        } else if (this.eraserActive) {
             this.eraseLine(event);
         }
 
-        this.updateEraserCircle(event);
+        if (this.erasing) {
+            this.updateEraserCircle(event);
+        }
     }
 
     onMouseUp(event) {
         this.drawing = false;
-        this.erasing = false;
+        this.eraserActive = false;
         this.currentLine = null;
     }
 
@@ -213,6 +252,16 @@ export default class Paper extends InteractiveObject {
         this.erasing = false;
     }
 
+    changeLineColorToBlack() {
+        this.lineColor = 0x000000; // Black color
+        this.erasing = false;
+    }
+
+    changeLineColorToRed() {
+        this.lineColor = 0xff0000; // Red color
+        this.erasing = false;
+    }
+
     activateEraserMode() {
         this.erasing = true;
         this.drawing = false;
@@ -239,8 +288,13 @@ export default class Paper extends InteractiveObject {
 
         const intersects = this.raycaster.intersectObject(this.plane);
         if (intersects.length > 0) {
-            this.eraserCircle.position.copy(intersects[0].point);
+            const intersectPoint = intersects[0].point;
+            const elevation = 1;
+            this.eraserCircle.position.set(intersectPoint.x, intersectPoint.y + elevation, intersectPoint.z);
             this.eraserCircle.visible = true;
+
+            // Faire face à la caméra
+            this.eraserCircle.lookAt(this.camera.position);
         } else {
             this.eraserCircle.visible = false;
         }

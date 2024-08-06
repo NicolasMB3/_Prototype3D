@@ -59,6 +59,15 @@ export default class StickyNotes extends InteractiveObject {
         this.isExitMessageDisplayed = false;
     }
 
+    handleStickyNoteActivation(stickyNoteIndex) {
+        if (stickyNoteIndex === 2) { // StickyNote 3 index
+            this.activateStickyNote3();
+            this.cursorMessage.style.display = "none";  // Cachez le message de sortie
+        } else {
+            this.isStickyNote3Active = false;
+        }
+    }
+
     setCameraLimits(targetPosition) {
         this.application.camera.cameraLimit = {
             minX: targetPosition.x - 150,
@@ -66,14 +75,6 @@ export default class StickyNotes extends InteractiveObject {
             minY: targetPosition.y - 150,
             maxY: targetPosition.y + 150,
         };
-    }
-
-    handleStickyNoteActivation(stickyNoteIndex) {
-        if (stickyNoteIndex === 2) { // StickyNote 3 index
-            this.activateStickyNote3();
-        } else {
-            this.isStickyNote3Active = false;
-        }
     }
 
     activateStickyNote3() {
@@ -107,12 +108,14 @@ export default class StickyNotes extends InteractiveObject {
         this.isObjectActive = false;
         const uiElement = document.querySelector('#ui');
         uiElement.style.display = 'none';
+        this.cursorMessage.style.display = 'none';
     }
 
     onExitClick() {
         super.onExitClick();
         this.resetCameraLimits();
         this.isObjectActive = false;
+        this.cursorMessage.style.display = 'none';
     }
 
     resetCameraLimits() {

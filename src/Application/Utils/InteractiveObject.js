@@ -78,10 +78,10 @@ export default class InteractiveObject extends EventEmitter {
         if (intersects.length > 0) {
             this.onObjectClick(intersects[0].object);
         } else if (this.isObjectActive) {
-            this.onExitClick();  // Ajoutez cette ligne pour gérer le clic en dehors de la "plane"
+            this.onExitClick();
+            this.cursorMessage.style.display = 'none';
         }
     }
-
 
     handleTouchStart(event) {
         if (event.touches.length === 1) {
@@ -103,6 +103,7 @@ export default class InteractiveObject extends EventEmitter {
             this.onObjectClick(intersects[0].object);
         } else if (this.isExitMessageDisplayed) {
             this.onExitClick();
+            this.cursorMessage.style.display = 'none';
         }
     }
 
@@ -186,6 +187,7 @@ export default class InteractiveObject extends EventEmitter {
             this.isExitMessageDisplayed = false;
             this.onObjectExit();
             this.activeInteractiveObject = null;
+            this.cursorMessage.style.display = 'none';
         });
     }
 
