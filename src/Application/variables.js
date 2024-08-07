@@ -1,6 +1,6 @@
 export const IFRAME_WIDTH = 1055;
 export const IFRAME_HEIGHT = 920;
-export const URL_OS = 'https://floralwhite-cattle-984252.hostingersite.com/prototype/';
+export const URL_OS = 'https://nicolasbaar.fr/prototype/';
 export const WEBGL_CONTAINER_ID = '#webgl';
 export const CSS3D_CONTAINER_ID = '#css3d';
 export const SHADER_CONTAINER_ID = '#shader';

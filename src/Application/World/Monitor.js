@@ -117,8 +117,8 @@ export default class Monitor extends InteractiveObject {
         const glitchTextureMesh = this.createVideoTextureMesh(
             cssObject,
             "./textures/monitor/glitch.mp4",
-            0.04,
-            40.8
+            0.045,
+            0.8
         );
 
         this.scene.add(fingerprintsTextureMesh);

@@ -3,6 +3,7 @@ import * as THREE from "three";
 import InteractiveObject from "../Utils/InteractiveObject.js";
 import { CAMERA_SETTINGS } from "../variables.js";
 import TextEffect from "../Utils/TextEffect.js";
+import { gsap } from "gsap";
 
 export default class StickyNotes extends InteractiveObject {
     constructor() {
@@ -18,6 +19,7 @@ export default class StickyNotes extends InteractiveObject {
         this.initRaycaster(this.stickyNotes);
 
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
+        window.addEventListener('click', (event) => this.onGlobalClick(event));
     }
 
     createStickyNotes() {
@@ -62,7 +64,7 @@ export default class StickyNotes extends InteractiveObject {
     handleStickyNoteActivation(stickyNoteIndex) {
         if (stickyNoteIndex === 2) { // StickyNote 3 index
             this.activateStickyNote3();
-            this.cursorMessage.style.display = "none";  // Cachez le message de sortie
+            this.cursorMessage.style.display = "none";
         } else {
             this.isStickyNote3Active = false;
         }
@@ -79,7 +81,7 @@ export default class StickyNotes extends InteractiveObject {
 
     activateStickyNote3() {
         const uiElement = document.querySelector('#ui');
-        uiElement.style.display = 'block';
+        gsap.to(uiElement, { opacity: 0.8, display: 'block', duration: 0.1 });
 
         const textEffect = new TextEffect(uiElement, {
             updateInterval: 5,
@@ -98,8 +100,8 @@ export default class StickyNotes extends InteractiveObject {
 
     downloadCV() {
         const link = document.createElement('a');
-        link.href = './cv.pdf';
-        link.download = 'cv.pdf';
+        link.href = '/prototype/cv_nicolasbaar.pdf';
+        link.download = 'cv_nicolasbaar.pdf';
         link.click();
     }
 
@@ -107,7 +109,7 @@ export default class StickyNotes extends InteractiveObject {
         super.onObjectExit();
         this.isObjectActive = false;
         const uiElement = document.querySelector('#ui');
-        uiElement.style.display = 'none';
+        gsap.to(uiElement, { opacity: 0, duration: 0.5, onComplete: () => { uiElement.style.display = 'none'; } });
         this.cursorMessage.style.display = 'none';
     }
 
@@ -125,5 +127,13 @@ export default class StickyNotes extends InteractiveObject {
             minY: 2500,
             maxY: 4000,
         };
+    }
+
+    onGlobalClick(event) {
+        const uiElement = document.querySelector('#ui');
+        if (this.isStickyNote3Active && !uiElement.contains(event.target)) {
+            gsap.to(uiElement, { opacity: 0, duration: 0.5, onComplete: () => { uiElement.style.display = 'none'; } });
+            this.isStickyNote3Active = false;
+        }
     }
 }
