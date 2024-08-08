@@ -58,7 +58,7 @@ export default class Renderer {
         this.shaderInstance.domElement.style.position = 'absolute';
         this.shaderInstance.domElement.style.top = '0px';
 
-        this.shaderInstance.domElement.style.opacity = '0.14';
+        this.shaderInstance.domElement.style.opacity = '0.22';
         this.shaderInstance.domElement.style.pointerEvents = 'none';
         this.shaderCanvas.appendChild(this.shaderInstance.domElement);
     }
@@ -67,7 +67,7 @@ export default class Renderer {
         this.composer = new EffectComposer(this.shaderInstance);
 
         this.noisePass = new ShaderPass(noiseShader);
-        this.noisePass.uniforms.intensity.value = 0.18;
+        this.noisePass.uniforms.intensity.value = 0.12;
 
         this.noisePass.renderToScreen = true;
         this.composer.addPass(this.noisePass);

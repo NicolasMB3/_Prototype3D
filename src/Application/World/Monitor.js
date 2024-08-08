@@ -99,7 +99,7 @@ export default class Monitor extends InteractiveObject {
         const fingerprintsTextureMesh = this.createTextureMesh(
             cssObject,
             "./textures/monitor/fingerprints.jpg",
-            0.2,
+            0.3,
             40.5
         );
         const shadowTextureMesh = this.createTextureMesh(
@@ -111,13 +111,13 @@ export default class Monitor extends InteractiveObject {
         const dustTextureMesh = this.createTextureMesh(
             cssObject,
             "./textures/monitor/dust.jpg",
-            0.015,
+            0.017,
             40.7
         );
         const glitchTextureMesh = this.createVideoTextureMesh(
             cssObject,
             "./textures/monitor/glitch.mp4",
-            0.045,
+            0.06,
             0.8
         );
 

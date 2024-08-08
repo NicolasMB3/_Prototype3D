@@ -1,7 +1,7 @@
 export const noiseShader = {
     uniforms: {
         "tDiffuse": { value: null },
-        "intensity": { value: 0.1 }
+        "intensity": { value: 0.11 }
     },
     vertexShader: `
         varying vec2 vUv;
