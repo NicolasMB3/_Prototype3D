@@ -17,7 +17,7 @@ export default class Monitor extends InteractiveObject {
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
         this.scene = this.application.scene;
 
-        this.position = new THREE.Vector3(835, 2967, -760);
+        this.position = new THREE.Vector3(837, 2968, -760);
         this.rotation = new THREE.Euler(
             -4.5 * THREE.MathUtils.DEG2RAD,
             -3.5 * THREE.MathUtils.DEG2RAD,
@@ -190,6 +190,7 @@ export default class Monitor extends InteractiveObject {
         return textureMesh;
     }
 
+
     createGlassLayer(cssObject) {
         const envMapLoader = new THREE.CubeTextureLoader();
         const envMap = envMapLoader.load([
@@ -198,8 +199,28 @@ export default class Monitor extends InteractiveObject {
             "./textures/environmentMap/pz.jpg", "./textures/environmentMap/nz.jpg",
         ]);
 
-        const glassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
-        const glassMaterial = new THREE.MeshStandardMaterial({
+        // Define inner and outer glass planes
+        const glassThickness = 1;
+
+        // Outer glass layer
+        const outerGlassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH + glassThickness, IFRAME_HEIGHT + glassThickness);
+        const outerGlassMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.05,
+            metalness: 0.6,
+            opacity: 0.12,
+            transparent: true,
+        });
+        const outerGlassMesh = new THREE.Mesh(outerGlassGeometry, outerGlassMaterial);
+
+        outerGlassMesh.position.copy(cssObject.position);
+        outerGlassMesh.rotation.copy(cssObject.rotation);
+        outerGlassMesh.scale.copy(cssObject.scale);
+        outerGlassMesh.position.z += 20;
+
+        // Inner glass layer
+        const innerGlassGeometry = new THREE.PlaneGeometry(IFRAME_WIDTH, IFRAME_HEIGHT);
+        const innerGlassMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             roughness: 0.05,
             metalness: 0.6,
@@ -208,15 +229,15 @@ export default class Monitor extends InteractiveObject {
             envMap: envMap,
             envMapIntensity: 0.09,
         });
-        const glassMesh = new THREE.Mesh(glassGeometry, glassMaterial);
+        const innerGlassMesh = new THREE.Mesh(innerGlassGeometry, innerGlassMaterial);
 
-        glassMesh.position.copy(cssObject.position);
-        glassMesh.rotation.copy(cssObject.rotation);
-        glassMesh.scale.copy(cssObject.scale);
+        innerGlassMesh.position.copy(cssObject.position);
+        innerGlassMesh.rotation.copy(cssObject.rotation);
+        innerGlassMesh.scale.copy(cssObject.scale);
+        innerGlassMesh.position.z += 17.5; // Slightly behind the outer glass layer
 
-        glassMesh.position.z += 40;
-
-        this.scene.add(glassMesh);
+        this.scene.add(outerGlassMesh);
+        this.scene.add(innerGlassMesh);
     }
 
     receiveMessage() {

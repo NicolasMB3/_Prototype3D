@@ -27,7 +27,7 @@ export default class StickyNotes extends InteractiveObject {
             { x: -950, y: 3450, z: -1950, size: 300 },
             { x: -1225, y: 3525, z: -1950, size: 300 },
             { x: 565, y: 3990, z: -1950, size: 220 },
-            { x: 2485, y: 4175, z: -1950, size: 220 },
+            { x: 2685, y: 3875, z: -1950, size: 220 },
             { x: 2225, y: 3315, z: -450, size: 220 },
         ];
 

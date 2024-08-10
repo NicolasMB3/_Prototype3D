@@ -13,6 +13,3 @@ const shader3D = document.querySelector(SHADER_CONTAINER_ID);
 const loadingCanvas = document.querySelector(LOADING_CONTAINER_ID);
 
 const app = new Application(canvas, canvas3D, shader3D, loadingCanvas);
-
-// Credits to the author of the 3D model:
-// https://sketchfab.com/dr.badass2142
