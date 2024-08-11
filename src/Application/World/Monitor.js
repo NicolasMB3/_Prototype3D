@@ -208,7 +208,7 @@ export default class Monitor extends InteractiveObject {
             color: 0xffffff,
             roughness: 0.05,
             metalness: 0.6,
-            opacity: 0.12,
+            opacity: 0.1,
             transparent: true,
         });
         const outerGlassMesh = new THREE.Mesh(outerGlassGeometry, outerGlassMaterial);
@@ -224,7 +224,7 @@ export default class Monitor extends InteractiveObject {
             color: 0xffffff,
             roughness: 0.05,
             metalness: 0.6,
-            opacity: 0.12,
+            opacity: 0.1,
             transparent: true,
             envMap: envMap,
             envMapIntensity: 0.09,

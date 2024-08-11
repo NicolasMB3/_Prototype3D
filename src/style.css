@@ -300,3 +300,17 @@ html, body {
 
     transition: opacity 0.5s;
 }
+
+#information {
+    position: fixed;
+    bottom: 20px;
+    right: 25px;
+    opacity: 0.4;
+
+    font-family: monospace;
+    color: white;
+
+    z-index: 5;
+
+    transition: opacity 0.5s;
+}

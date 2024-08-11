@@ -19,7 +19,7 @@ export const CAMERA_SETTINGS = {
         { x: -950, y: 3450, z: -600 },  // StickyNote 1
         { x: -1225, y: 3525, z: -600 }, // StickyNote 2
         { x: 565, y: 3990, z: -1000 },  // StickyNote 3
-        { x: 2685, y: 3875, z: -1000 }, // StickyNote 4
+        { x: 2845, y: 3875, z: -1000 }, // StickyNote 4
         { x: 2225, y: 3315, z: 400 },   // StickyNote 5
         // Transition position
         { x: 1000, y: 3000, z: 2000 },
