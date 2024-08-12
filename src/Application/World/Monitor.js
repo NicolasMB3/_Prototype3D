@@ -6,7 +6,7 @@ import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variabl
 import { VideoTexture } from 'three';
 
 export default class Monitor extends InteractiveObject {
-    constructor() {
+    constructor(loadingManager) {
 
         const application = new Application();
         super(application);
@@ -17,6 +17,8 @@ export default class Monitor extends InteractiveObject {
         this.screenSize = new THREE.Vector2(IFRAME_WIDTH, IFRAME_HEIGHT);
         this.scene = this.application.scene;
 
+        this.loadingManager = loadingManager;
+
         this.position = new THREE.Vector3(837, 2968, -760);
         this.rotation = new THREE.Euler(
             -4.5 * THREE.MathUtils.DEG2RAD,
@@ -25,10 +27,7 @@ export default class Monitor extends InteractiveObject {
         );
 
         this.isIframeActive = false;
-        this.isPlaneStarted = false;
-
-        this.cooldown = false;
-        this.cooldownDuration = 6000;
+        this.isPlaneStarted = true;
 
         this.cursorMessage.innerText = "Cliquez pour accéder à l'écran";
         this.defaultMessage = "Cliquez pour accéder à l'écran";
@@ -132,9 +131,21 @@ export default class Monitor extends InteractiveObject {
         video.src = videoPath;
         video.loop = true;
         video.muted = true;
-        video.play();
+        video.autoplay = true;
+        video.playsInline = true;
 
-        const texture = new VideoTexture(video);
+        video.addEventListener('canplaythrough', () => {
+            this.loadingManager.itemEnd(videoPath);
+
+            video.play().catch((error) => {
+                console.log('Autoplay a été bloqué :', error);
+            });
+        }, { once: true });
+
+        // Signaler que la vidéo a commencé à se charger dans le LoadingManager
+        this.loadingManager.itemStart(videoPath);
+
+        const texture = new THREE.VideoTexture(video);
         const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
@@ -171,7 +182,7 @@ export default class Monitor extends InteractiveObject {
     }
 
     createTextureMesh(cssObject, texturePath, opacity, zOffset) {
-        const texture = new THREE.TextureLoader().load(texturePath);
+        const texture = new THREE.TextureLoader(this.loadingManager).load(texturePath);
         const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
@@ -192,7 +203,7 @@ export default class Monitor extends InteractiveObject {
 
 
     createGlassLayer(cssObject) {
-        const envMapLoader = new THREE.CubeTextureLoader();
+        const envMapLoader = new THREE.CubeTextureLoader(this.loadingManager);
         const envMap = envMapLoader.load([
             "./textures/environmentMap/px.jpg", "./textures/environmentMap/nx.jpg",
             "./textures/environmentMap/py.jpg", "./textures/environmentMap/ny.jpg",
@@ -243,10 +254,10 @@ export default class Monitor extends InteractiveObject {
     receiveMessage() {
         window.addEventListener("message", (event) => {
             if (event.data === 'stopPlaneClicked') {
-                this.cursorMessage.innerText = "Allumer l'ordinateur";
+                this.cursorMessage.innerText = "Eteindre l'écran";
                 this.isPlaneStarted = false;
             } else if (event.data === 'startPlaneClicked') {
-                this.cursorMessage.innerText = "Eteindre l'ordinateur";
+                this.cursorMessage.innerText = "Allumer l'écran";
                 this.isPlaneStarted = true;
             }
         });
@@ -266,34 +277,17 @@ export default class Monitor extends InteractiveObject {
     }
 
     togglePlaneState() {
-        if (this.cooldown) {
-            return;
-        }
-
-        this.cooldown = true;
-
-        setTimeout(() => {
-            this.cooldown = false;
-            const stoppedMessage = "Allumer l'ordinateur";
-            const startedMessage = "Eteindre l'ordinateur";
-            this.cursorMessage.innerText = this.isPlaneStarted ? startedMessage : stoppedMessage;
-        }, this.cooldownDuration);
-
-        const startMessage = "En cours de démarrage...";
-        const stopMessage = "En cours d'extinction...";
-
         if (!this.isPlaneStarted) {
-            this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
+            this.iframe.contentWindow.postMessage('stopPlaneClicked', '*');
             new Audio('./sounds/on.mp3').play().then(r => r).catch(e => e);
-            this.cursorMessage.innerText = startMessage;
             this.isPlaneStarted = true;
         } else {
-            this.iframe.contentWindow.postMessage('stopPlaneClicked', '*');
+            this.iframe.contentWindow.postMessage('startPlaneClicked', '*');
             new Audio('./sounds/off.mp3').play().then(r => r).catch(e => e);
-            this.cursorMessage.innerText = stopMessage;
             this.isPlaneStarted = false;
         }
 
+        this.cursorMessage.innerText = this.isPlaneStarted ? "Allumer l'écran" : "Eteindre l'écran";
         this.cursorMessage.style.display = "block";
     }
 
@@ -339,7 +333,7 @@ export default class Monitor extends InteractiveObject {
 
         this.startPlane.userData = {
             onMouseOver: () => {
-                this.cursorMessage.innerText = this.isPlaneStarted ? "Eteindre l'ordinateur" : "Allumer l'ordinateur";
+                this.cursorMessage.innerText = this.isPlaneStarted ? "Eteindre l'écran" : "Allumer l'écran";
                 this.cursorMessage.style.display = "block";
                 this.textEffect.startEffect();
             },

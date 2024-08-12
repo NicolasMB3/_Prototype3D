@@ -12,7 +12,7 @@ import Monitor from "./Monitor.js";
 import EventEmitter from "../Utils/EventEmitter.js";
 
 export default class World extends EventEmitter {
-    constructor() {
+    constructor(loadingManager) {
         super();
 
         this.application = new Application();
@@ -27,7 +27,7 @@ export default class World extends EventEmitter {
             this.furnitures = new Furnitures();
             this.stickyNotes = new StickyNotes();
             this.paper = new Paper();
-            this.monitor = new Monitor();
+            this.monitor = new Monitor(loadingManager);
             this.trigger('monitorReady', [this.monitor]);
         });
     }

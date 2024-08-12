@@ -45,7 +45,7 @@ export default class Application extends EventEmitter {
         this.resources = new Resources(sources, this.loadingScreen.getLoadingManager());
 
         this.renderer = new Renderer(canvas, canvas3D);
-        this.world = new World();
+        this.world = new World(this.loadingScreen.getLoadingManager());
         this.interactiveObject = new InteractiveObject(this);
 
         this.eventListenersScreen();

@@ -9,6 +9,7 @@ export default class LoadingScreen {
         this.sizes = this.application.sizes;
         this.canvas = this.application.loadingCanvas;
         this.loadingEnd = undefined;
+        this.isLoadingComplete = false;  // Nouvelle variable pour contrôler l'état de chargement
 
         this.camera = new THREE.OrthographicCamera(
             this.sizes.width / -2,
@@ -28,14 +29,8 @@ export default class LoadingScreen {
         this.setInstance();
         this.setTimeAndDate();
 
-        // Detect if the user is on a mobile device
+        // Détection de l'appareil mobile
         this.isMobile = /Mobi|Android/i.test(window.navigator.userAgent);
-
-        // Set appropriate text based on device type
-        this.setInstructionText();
-
-        // Add event listeners based on device type
-        this.addStartEventListeners();
     }
 
     setInstructionText() {
@@ -49,12 +44,16 @@ export default class LoadingScreen {
 
     addStartEventListeners() {
         if (this.isMobile) {
-            // On mobile, detect touch/click on screen
-            this.loadingScreenElement.addEventListener('click', () => this.startLoading());
+            // Sur mobile, détecter un touch/click sur l'écran
+            this.loadingScreenElement.addEventListener('click', () => {
+                if (this.isLoadingComplete) {  // Vérifie si le chargement est terminé
+                    this.startLoading();
+                }
+            });
         } else {
-            // On desktop, detect Enter key press
+            // Sur desktop, détecter la touche Enter
             window.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && this.isLoadingComplete) {  // Vérifie si le chargement est terminé
                     this.startLoading();
                 }
             });
@@ -62,7 +61,7 @@ export default class LoadingScreen {
     }
 
     startLoading() {
-        if (this.loadingEnd) return; // Prevent multiple triggers
+        if (this.loadingEnd) return; // Empêche plusieurs déclenchements
         this.loadingEnd = true;
         this.fadeOutLoadingScreen();
     }
@@ -100,13 +99,15 @@ export default class LoadingScreen {
     }
 
     loadComplete() {
-        this.loadingEnd = false;
+        this.isLoadingComplete = true;  // Le chargement est maintenant complet
         document.querySelector('#loadingMessage').style.display = 'none';
         document.querySelectorAll('.p_child').forEach((element) => {
             element.style.display = 'block';
         });
 
         this.startCountdown();
+        this.setInstructionText();
+        this.addStartEventListeners();  // Ajoute les événements ici, après le chargement complet
     }
 
     inLoad(url, itemsLoaded, itemsTotal) {
@@ -134,7 +135,7 @@ export default class LoadingScreen {
             if (counter <= 0) {
                 clearInterval(countdown);
                 if (!this.loadingEnd) {
-                    this.startLoading(); // Automatically start loading if countdown reaches 0
+                    this.startLoading(); // Démarre automatiquement le chargement si le compte à rebours atteint 0
                 }
             }
         }, 1000);
