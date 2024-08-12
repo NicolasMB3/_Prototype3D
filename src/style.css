@@ -71,6 +71,10 @@ html, body {
     cursor: pointer;
 }
 
+.cursor-notallowed {
+    cursor: not-allowed;
+}
+
 #loadingScreen {
     position: fixed;
     top: 0;
@@ -309,11 +313,8 @@ html, body {
 
     font-family: monospace;
     color: white;
-
     z-index: 5;
-
     transition: opacity 0.5s;
-    pointer-events: none;
 
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;

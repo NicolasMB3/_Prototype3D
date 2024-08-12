@@ -3,7 +3,6 @@ import { CSS3DObject } from "three/addons";
 import * as THREE from "three";
 import InteractiveObject from "../Utils/InteractiveObject.js";
 import { IFRAME_WIDTH, IFRAME_HEIGHT, URL_OS, CAMERA_SETTINGS } from "../variables.js";
-import { VideoTexture } from 'three';
 
 export default class Monitor extends InteractiveObject {
     constructor(loadingManager) {
@@ -116,7 +115,7 @@ export default class Monitor extends InteractiveObject {
         const glitchTextureMesh = this.createVideoTextureMesh(
             cssObject,
             "./textures/monitor/glitch.mp4",
-            0.06,
+            0.072,
             0.8
         );
 
@@ -287,7 +286,7 @@ export default class Monitor extends InteractiveObject {
             this.isPlaneStarted = false;
         }
 
-        this.cursorMessage.innerText = this.isPlaneStarted ? "Allumer l'écran" : "Eteindre l'écran";
+        this.cursorMessage.innerText = this.isPlaneStarted ? "Eteindre l'écran" : "Allumer l'écran";
         this.cursorMessage.style.display = "block";
     }
 

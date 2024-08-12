@@ -188,7 +188,7 @@ export default class Paper extends InteractiveObject {
 
         const material = new LineMaterial({
             color: this.lineColor,
-            linewidth: 1.3,
+            linewidth: 1.5,
             worldUnits: true,
         });
         material.resolution.set(window.innerWidth, window.innerHeight);
